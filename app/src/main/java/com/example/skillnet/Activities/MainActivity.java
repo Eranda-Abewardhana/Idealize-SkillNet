@@ -1,8 +1,11 @@
 package com.example.skillnet.Activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -16,17 +19,39 @@ import com.example.skillnet.Fragments.ProfileFragment;
 import com.example.skillnet.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
 
+    FirebaseAuth auth ;
+    Button button ;
+    FirebaseUser user ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        auth =  FirebaseAuth.getInstance();
+        button = findViewById(R.id.logout);
+        user = auth.getCurrentUser();
+        if (user == null) {
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
         tabLayout = findViewById(R.id.tab_layout);
         viewPager2 = findViewById(R.id.viewpager);
 

@@ -24,9 +24,21 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/back"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
+
 
     </de.hdodenhof.circleimageview.CircleImageView>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logout"
+        android:text="@string/logout"
+        android:layout_marginStart="100dp"
+        android:gravity="center"
+
+        tools:ignore="MissingConstraints" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
