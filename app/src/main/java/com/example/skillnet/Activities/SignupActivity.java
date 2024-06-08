@@ -5,7 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -22,74 +26,82 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class SignupActivity extends AppCompatActivity {
     TextInputEditText editTextPassword, editTextEmail;
-    Button button ;
-    FirebaseAuth mAuth ;
-    ProgressBar progressBar ;
-    TextView textView   ;
+    Button button;
+    FirebaseAuth mAuth;
+    ProgressBar progressBar;
+    TextView textView, tvAlreadyHaveAccount;
+
     @Override
-
-
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
         }
-
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         mAuth = FirebaseAuth.getInstance();
-        editTextPassword =findViewById(R.id.password) ;
-        editTextEmail = findViewById(R.id.email) ;
+        editTextPassword = findViewById(R.id.password);
+        editTextEmail = findViewById(R.id.email);
         progressBar = findViewById(R.id.progressbar);
-        button = findViewById(R.id.SignupButton) ;
-        textView = findViewById(R.id.LoginNow);
-        textView.setOnClickListener(new View.OnClickListener() {
+        button = findViewById(R.id.SignupButton);
+        tvAlreadyHaveAccount = findViewById(R.id.tv_already_have_account);
+
+        // Set clickable text for "Log in"
+        String text = "Already have an account? Log in";
+        SpannableString spannableString = new SpannableString(text);
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class) ;
+            public void onClick(View widget) {
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
-                finish();
             }
-        });
+        };
+
+        // Make only "Log in" clickable
+        spannableString.setSpan(clickableSpan, 25, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        tvAlreadyHaveAccount.setText(spannableString);
+        tvAlreadyHaveAccount.setMovementMethod(LinkMovementMethod.getInstance());
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                String email, password ;
-                email = String.valueOf(editTextEmail.getText()) ;
-                password = String.valueOf(editTextPassword.getText()) ;
+                String email, password;
+                email = String.valueOf(editTextEmail.getText());
+                password = String.valueOf(editTextPassword.getText());
 
-                if (TextUtils.isEmpty(email)){
-                    Toast.makeText(SignupActivity.this,"Email cannot Be empty",Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(email)) {
+                    Toast.makeText(SignupActivity.this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                     return;
                 }
                 if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(SignupActivity.this, "Password cannot Be empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignupActivity.this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                    return;
                 }
+
                 mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    progressBar.setVisibility(View.GONE);
-                                    Toast.makeText(SignupActivity.this, "Account Created",
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
                                     Intent intent2 = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(intent2);
                                     finish();
-
                                 } else {
-                                    progressBar.setVisibility(View.GONE);
-                                    // If sign in fails, display a message to the user.
-                                    Toast.makeText(SignupActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-
+                                    Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });

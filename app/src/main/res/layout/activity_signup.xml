@@ -40,6 +40,32 @@
 
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/ReEnterPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password2">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/PhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_number">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
     <ProgressBar
         android:id="@+id/progressbar"
         android:visibility="gone"
@@ -53,15 +79,10 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/LoginNow"
-        android:layout_width="match_parent"
+        android:id="@+id/tv_already_have_account"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="@string/login_now"
-        android:textSize="28sp"
-        android:textStyle="bold"
-
-        />
+        android:text="@string/already_have_an_account_log_in"
+        android:textSize="16sp"/>
 
 </LinearLayout>
