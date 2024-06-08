@@ -82,6 +82,17 @@
         tools:layout_editor_absoluteX="17dp"
         tools:layout_editor_absoluteY="22dp" />
 
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/logout"
+
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="224dp"
+        tools:layout_editor_absoluteY="263dp" />
+
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
