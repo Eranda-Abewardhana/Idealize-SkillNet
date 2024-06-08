@@ -12,6 +12,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignupActivity extends AppCompatActivity {
-    TextInputEditText editTextPassword, editTextEmail;
+    EditText editTextPassword, editTextEmail;
     Button button;
     FirebaseAuth mAuth;
     ProgressBar progressBar;
@@ -54,22 +55,14 @@ public class SignupActivity extends AppCompatActivity {
         tvAlreadyHaveAccount = findViewById(R.id.tv_already_have_account);
 
         // Set clickable text for "Log in"
-        String text = "Already have an account? Log in";
-        SpannableString spannableString = new SpannableString(text);
+        tvAlreadyHaveAccount.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+               startActivity(intent);
+           }
+       });
 
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(intent);
-            }
-        };
-
-        // Make only "Log in" clickable
-        spannableString.setSpan(clickableSpan, 25, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        tvAlreadyHaveAccount.setText(spannableString);
-        tvAlreadyHaveAccount.setMovementMethod(LinkMovementMethod.getInstance());
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
