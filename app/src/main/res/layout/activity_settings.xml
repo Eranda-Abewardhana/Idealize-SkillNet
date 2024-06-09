@@ -145,4 +145,14 @@
         tools:layout_editor_absoluteX="80dp"
         tools:layout_editor_absoluteY="263dp" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="55dp"
+        android:layout_height="62dp"
+        android:clickable="true"
+        app:backgroundTint="#753F51B5"
+        app:srcCompat="@drawable/profile"
+        tools:layout_editor_absoluteX="339dp"
+        tools:layout_editor_absoluteY="16dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
