@@ -56,9 +56,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:icon="@drawable/home"
-            tools:layout_editor_absoluteX="-2dp"
-            tools:layout_editor_absoluteY="670dp" />
+            android:icon="@drawable/home" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -84,10 +82,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Logout"
+        android:text="logout"
 
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="80dp"
+        tools:layout_editor_absoluteX="68dp"
         tools:layout_editor_absoluteY="22dp" />
 
     <TextView
@@ -141,5 +139,15 @@
         app:srcCompat="@drawable/log_out"
         tools:layout_editor_absoluteX="80dp"
         tools:layout_editor_absoluteY="263dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="55dp"
+        android:layout_height="62dp"
+        android:clickable="true"
+        app:backgroundTint="#753F51B5"
+        app:srcCompat="@drawable/profile"
+        tools:layout_editor_absoluteX="339dp"
+        tools:layout_editor_absoluteY="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
