@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter() // Add this line
     }
 }
 rootProject.name = "SkillNet"

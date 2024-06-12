@@ -2,4 +2,15 @@
     <string name="app_name">SkillNet</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login">Login</string>
+    <string name="lh">Login</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Welcome</string>
+    <string name="email">Email</string>
+    <string name="login_now">Login Now</string>
+    <string name="sign_up_for_new_users">Sign Up For New Users</string>
+    <string name="logout">Logout</string>
+    <string name="password2">Confirm Password</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="already_have_an_account_log_in">Already have an Account?</string>
 </resources>
