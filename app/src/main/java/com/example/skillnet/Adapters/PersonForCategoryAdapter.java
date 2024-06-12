@@ -35,6 +35,50 @@ public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCate
         PersonData person = personDataList.get(position);
         holder.personName.setText(person.getName());
         Picasso.get().load(person.getImageUrl()).into(holder.personImage);
+
+        switch (person.getStars()){
+            case 1:
+                holder.star1.setBackgroundResource(R.drawable.starfull);
+                holder.star2.setBackgroundResource(R.drawable.starfill);
+                holder.star3.setBackgroundResource(R.drawable.starfill);
+                holder.star4.setBackgroundResource(R.drawable.starfill);
+                holder.star5.setBackgroundResource(R.drawable.starfill);
+                break;
+            case 2:
+                holder.star1.setBackgroundResource(R.drawable.starfull);
+                holder.star2.setBackgroundResource(R.drawable.starfull);
+                holder.star3.setBackgroundResource(R.drawable.starfill);
+                holder.star4.setBackgroundResource(R.drawable.starfill);
+                holder.star5.setBackgroundResource(R.drawable.starfill);
+                break;
+            case 3:
+                holder.star1.setBackgroundResource(R.drawable.starfull);
+                holder.star2.setBackgroundResource(R.drawable.starfull);
+                holder.star3.setBackgroundResource(R.drawable.starfull);
+                holder.star4.setBackgroundResource(R.drawable.starfill);
+                holder.star5.setBackgroundResource(R.drawable.starfill);
+                break;
+            case 4:
+                holder.star1.setBackgroundResource(R.drawable.starfull);
+                holder.star2.setBackgroundResource(R.drawable.starfull);
+                holder.star3.setBackgroundResource(R.drawable.starfull);
+                holder.star4.setBackgroundResource(R.drawable.starfull);
+                holder.star5.setBackgroundResource(R.drawable.starfill);
+                break;
+            case 5:
+                holder.star1.setBackgroundResource(R.drawable.starfull);
+                holder.star2.setBackgroundResource(R.drawable.starfull);
+                holder.star3.setBackgroundResource(R.drawable.starfull);
+                holder.star4.setBackgroundResource(R.drawable.starfull);
+                holder.star5.setBackgroundResource(R.drawable.starfull);
+                break;
+            default:
+                holder.star1.setBackgroundResource(R.drawable.starfill);
+                holder.star2.setBackgroundResource(R.drawable.starfill);
+                holder.star3.setBackgroundResource(R.drawable.starfill);
+                holder.star4.setBackgroundResource(R.drawable.starfill);
+                holder.star5.setBackgroundResource(R.drawable.starfill);
+        }
     }
 
     @Override
@@ -45,12 +89,17 @@ public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCate
     public static class PersonViewHolder extends RecyclerView.ViewHolder {
 
         TextView personName;
-        ImageView personImage;
+        ImageView personImage,star1, star2, star3, star4, star5;
 
         public PersonViewHolder(@NonNull View itemView) {
             super(itemView);
             personName = itemView.findViewById(R.id.service_name);
             personImage = itemView.findViewById(R.id.category_image);
+            star1       = itemView.findViewById(R.id.imageView2);
+            star2       = itemView.findViewById(R.id.imageView3);
+            star3       = itemView.findViewById(R.id.imageView4);
+            star4       = itemView.findViewById(R.id.imageView5);
+            star5       = itemView.findViewById(R.id.imageView6);
         }
     }
 }

@@ -7,14 +7,18 @@ public class Categories {
     String name;
     String url;
     String code;
-    List<PersonData> personDataList = new ArrayList<>();
+    List<String> personCodes = new ArrayList<>();
 
-    public List<PersonData> getPersonDataList() {
-        return personDataList;
+    public Categories() {
+
     }
 
-    public void setPersonDataList(List<PersonData> personDataList) {
-        this.personDataList = personDataList;
+    public List<String> getPersonDataList() {
+        return personCodes;
+    }
+
+    public void setPersonDataList(List<String> personCodes) {
+        this.personCodes = personCodes;
     }
 
     public void setCode(String code) {
@@ -23,11 +27,11 @@ public class Categories {
     public String getCode() {
         return code;
     }
-    public Categories(String code, String name, String url, List<PersonData> personDataList) {
+    public Categories(String code, String name, String url, List<String> personCodes) {
         this.name = name;
         this.url = url;
         this.code = code;
-        this.personDataList = personDataList;
+        this.personCodes = personCodes;
     }
 
     public String getName() {
