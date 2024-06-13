@@ -266,7 +266,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
-        <Button
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/SignupButton"
             android:layout_width="268dp"
             android:layout_height="48dp"
@@ -276,6 +276,8 @@
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             />
+
+
 
         <LinearLayout
             android:layout_width="match_parent"

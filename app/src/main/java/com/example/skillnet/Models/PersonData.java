@@ -7,6 +7,10 @@ public class PersonData {
     private String ImageUrl;
     int stars;
 
+    public PersonData() {
+
+    }
+
     public int getStars() {
         return stars;
     }

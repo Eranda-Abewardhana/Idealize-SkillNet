@@ -15,6 +15,7 @@ import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapter.CategoryViewHolder> {
@@ -41,11 +42,21 @@ public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapte
         Categories category = categoriesList.get(position);
         holder.categoryName.setText(category.getName());
 
-        // Set up the nested RecyclerView
+        List<PersonData> personDataList1 = new ArrayList<>();
+        for (PersonData person : personDataList) {
+                List<String> personCodes = category.getPersonDataList();
+                for (String code : personCodes) {
+                    if (code.equals(person.getpCode())) {
+                        personDataList1.add(person);
+                    }
+            }
+        }
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.personRecyclerView.setLayoutManager(layoutManager);
-        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList);
+        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList1);
         holder.personRecyclerView.setAdapter(personForCategoryAdapter);
+        personForCategoryAdapter.notifyDataSetChanged();
     }
 
     @Override
