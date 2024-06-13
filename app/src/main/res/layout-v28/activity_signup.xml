@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,15 +12,16 @@
         android:id="@+id/circleImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/back" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <TextView
@@ -31,7 +31,7 @@
             android:text="@string/welcome"
             android:textAlignment="textStart"
             android:textColor="@color/gold"
-            android:textSize="50sp"
+            android:textSize="32sp"
             android:textStyle="bold" />
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:fontFamily="monospace"
-            android:text="@string/please_create_an_account_to_continue"
+            android:text="Please create an account to continue!"
             android:textColor="@color/lite_black"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -52,7 +52,7 @@
             android:fontFamily="sans-serif-thin"
             android:text="@string/name"
             android:textColor="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -60,16 +60,14 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
-            android:background="#00FFFFFF"
-            android:outlineAmbientShadowColor="@color/black"
-            android:outlineSpotShadowColor="@color/black"
-            app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="20dp">
+            android:background="@android:color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="@android:color/transparent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
+                android:background="@drawable/card_boder"
                 android:orientation="vertical">
 
                 <EditText
@@ -79,21 +77,24 @@
                     android:layout_marginStart="20dp"
                     android:background="@android:color/transparent"
                     android:hint="@string/name"
-                    android:inputType="textPersonName"
+                    android:inputType="textEmailAddress"
                     android:padding="10dp"
                     android:textColor="@color/lite_black"
                     android:textColorHint="@color/gray" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:fontFamily="sans-serif-thin"
-            android:text="@string/email"
+            android:text="Email"
             android:textColor="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
+
+
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -132,9 +133,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:fontFamily="sans-serif-thin"
-            android:text="@string/password"
+            android:text="Password"
             android:textColor="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -150,8 +151,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@drawable/card_boder">
 
                 <EditText
                     android:id="@+id/password"
@@ -172,9 +173,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:fontFamily="sans-serif-thin"
-            android:text="@string/aaa"
+            android:text="Confirm Password"
             android:textColor="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -199,7 +200,7 @@
                     android:layout_height="48dp"
                     android:layout_marginStart="20dp"
                     android:background="@android:color/transparent"
-                    android:hint="@string/aaa"
+                    android:hint="@string/password2"
                     android:inputType="textPassword"
                     android:padding="10dp"
                     android:textColor="@color/lite_black"
@@ -212,9 +213,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:fontFamily="sans-serif-thin"
-            android:text="@string/phone_number"
+            android:text="Contact number"
             android:textColor="@color/gray"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -252,10 +253,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="0dp"
-        android:gravity="center"
         android:orientation="vertical">
 
         <ProgressBar
@@ -266,13 +267,14 @@
 
         <Button
             android:id="@+id/SignupButton"
-            android:layout_width="match_parent"
+            android:layout_width="268dp"
             android:layout_height="48dp"
             android:background="@drawable/button_background"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:text="@string/aa"
-            android:textColor="@android:color/white" />
+            android:text="Sign Up"
+            android:textColor="@android:color/white"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -284,9 +286,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-thin"
                 android:text="@string/already_have_an_account_log_in"
                 android:textColor="@color/lite_black"
+                android:fontFamily="sans-serif-thin"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -294,7 +296,7 @@
                 android:id="@+id/tv_already_have_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/login"
+                android:text="  Log in"
                 android:textColor="@color/gold"
                 android:textSize="16sp"
                 android:textStyle="bold" />
