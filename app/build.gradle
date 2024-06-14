@@ -24,13 +24,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
 dependencies {
 
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
+
+    // Required to use `ListenableFuture` from Guava Android for one-shot generation
+    implementation("com.google.guava:guava:31.0.1-android")
+
+    // Required to use `Publisher` from Reactive Streams for streaming operations
+    implementation("org.reactivestreams:reactive-streams:1.0.4")
     implementation 'br.com.simplepass:loading-button-android:2.2.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.appcompat:appcompat:1.6.1'

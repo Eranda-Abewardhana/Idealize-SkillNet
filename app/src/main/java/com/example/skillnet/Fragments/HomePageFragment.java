@@ -24,8 +24,11 @@ import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -81,53 +84,61 @@ public class HomePageFragment extends Fragment {
         // Fetch all data from the "users" collection
         db.collection("users")
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            PersonData person = document.toObject(PersonData.class);
-                            personDataList.add(person);
-                            Log.d("Firestore", "User: " + person.getName());
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                PersonData person = document.toObject(PersonData.class);
+                                personDataList.add(person);
+                                Log.d("Firestore", "User: " + person.getName());
+                            }
+                            // Load data into adapter after fetching users
+                            loadAdapters(GlobalVariables.isWorker);
+                        } else {
+                            Log.w("Firestore", "Error getting documents.", task.getException());
                         }
-                        // Load data into adapter after fetching users
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
                     }
                 });
-
         // Fetch all data from the "categories" collection
         db.collection("categories")
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Categories category = document.toObject(Categories.class);
-                            categoriesList.add(category);
-                            Log.d("Firestore", "Category: " + category.getName());
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Categories category = document.toObject(Categories.class);
+                                categoriesList.add(category);
+                                Log.d("Firestore", "Category: " + category.getName());
+                            }
+                            // Load data into adapter after fetching categories
+                            loadAdapters(GlobalVariables.isWorker);
+                        } else {
+                            Log.w("Firestore", "Error getting documents.", task.getException());
                         }
-                        // Load data into adapter after fetching categories
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
+                    }
+                });
+// Fetch all data from the "posts" collection
+        db.collection("posts")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Post post = document.toObject(Post.class);
+                                postList.add(post);
+                                Log.d("Firestore", "Post: " + post.getTitle());
+                            }
+                            // Load data into adapter after fetching posts
+                            loadAdapters(GlobalVariables.isWorker);
+                        } else {
+                            Log.w("Firestore", "Error getting documents.", task.getException());
+                        }
                     }
                 });
 
-        // Fetch all data from the "posts" collection
-        db.collection("posts")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                            Log.d("Firestore", "Post: " + post.getTitle());
-                        }
-                        // Load data into adapter after fetching posts
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
-                    }
-                });
 
         return view;
     }

@@ -42,7 +42,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PostAdapter.PostViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final PostAdapter.PostViewHolder holder, int position) {
         Post post = postList.get(position);
         Categories category = new Categories();
         PersonData personData = new PersonData();
@@ -71,17 +71,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Picasso.get().load(category.getUrl()).into(holder.image);
 
         // Set the see more button action
-        holder.seeMoreButton.setOnClickListener(v -> {
-            if (holder.see_more.getVisibility() == View.VISIBLE) {
-                // If layout is visible, hide it and change button text to "See More"
-                holder.see_more.setVisibility(View.GONE);
-                holder.seeMoreButton.setText("See More");
-            } else {
-                // If layout is not visible, show it and change button text to "See Less"
-                holder.see_more.setVisibility(View.VISIBLE);
-                holder.seeMoreButton.setText("See Less");
+        holder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.see_more.getVisibility() == View.VISIBLE) {
+                    // If layout is visible, hide it and change button text to "See More"
+                    holder.see_more.setVisibility(View.GONE);
+                    holder.seeMoreButton.setText("See More");
+                } else {
+                    // If layout is not visible, show it and change button text to "See Less"
+                    holder.see_more.setVisibility(View.VISIBLE);
+                    holder.seeMoreButton.setText("See Less");
+                }
             }
         });
+
 
     }
 
