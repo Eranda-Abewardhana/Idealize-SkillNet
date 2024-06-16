@@ -38,9 +38,24 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             holder.botCard.setVisibility(View.GONE);
             holder.userCard.setVisibility(View.VISIBLE);
             holder.userMessage.setText(chat.getMassage());
-            holder.profileImage.setBackgroundResource(R.drawable.person);
-//            Picasso.get().load(chat.getUrl()).into(holder.profileImage);
-        }else{
+            if(chat.getUser().getImageUrl() != null)
+            {
+                Picasso.get().load(chat.getUser().getImageUrl()).into(holder.profileImage);
+            }
+            else {
+                holder.profileImage.setBackgroundResource(R.drawable.person);
+            }
+        } else if (chat.getCode().equals("otherUser")) {
+            holder.botCard.setVisibility(View.VISIBLE);
+            holder.userCard.setVisibility(View.GONE);
+            holder.botMassage.setText(chat.getMassage());
+            if(chat.getOtherUser().getImageUrl() != null) {
+                Picasso.get().load(chat.getOtherUser().getImageUrl()).into(holder.botImage);
+            }
+            else {
+                holder.botImage.setBackgroundResource(R.drawable.logo);
+            }
+        } else{
             holder.botCard.setVisibility(View.VISIBLE);
             holder.userCard.setVisibility(View.GONE);
             holder.botMassage.setText(chat.getMassage());

@@ -15,7 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.skillnet.Adapters.ChatBotAdapter;
+import com.example.skillnet.FirebaseHelper.Firebase;
+import com.example.skillnet.FirebaseHelper.FirebaseCallback;
 import com.example.skillnet.Models.ChatModel;
+import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.ChatFutures;
@@ -29,6 +32,9 @@ import com.google.ai.client.generativeai.type.SafetySetting;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,11 +50,12 @@ public class ChatBotFragment extends Fragment {
     private EditText userMessageInput;
     private ImageView sendButton;
     private GenerativeModelFutures model;
+    private PersonData currentUser = new PersonData();
     private ExecutorService executorService; // ExecutorService for managing threads
 
     // Replace with your API Key obtained from Google AI Studio
     private static final String API_KEY = "AIzaSyBn4IJBo-jtgV2MAjgPOZhYWe6VOjX6SIw";
-    private String resultText = "";
+    private Firebase firebase;
 
     @Nullable
     @Override
@@ -56,6 +63,9 @@ public class ChatBotFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_chat_bot, container, false);
         recyclerView = view.findViewById(R.id.chat_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        firebase = new Firebase();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String email = auth.getCurrentUser().getEmail();
 
         GenerationConfig.Builder configBuilder = new GenerationConfig.Builder();
         configBuilder.temperature = 0.15f;
@@ -87,15 +97,51 @@ public class ChatBotFragment extends Fragment {
         sendButton = view.findViewById(R.id.send);
 
         executorService = Executors.newSingleThreadExecutor(); // Initialize ExecutorService
+        firebase.getUserByEmail(email, new FirebaseCallback<QueryDocumentSnapshot>() {
+                    @Override
+                    public void onCallback(List<QueryDocumentSnapshot> users) {
+                        if (!users.isEmpty()) {
+                            QueryDocumentSnapshot user = users.get(0);
+                            String code = user.getString("user");
+                            firebase.getUserDataById(code, new FirebaseCallback<PersonData>() {
+                                @Override
+                                public void onCallback(List<PersonData> list) {
 
+                                }
+
+                                @Override
+                                public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+                                }
+
+                                @Override
+                                public void onSingleCallback(PersonData item) {
+                                    currentUser = item;
+                                }
+                            });
+                        }
+
+                    }
+
+                    @Override
+                    public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onSingleCallback(QueryDocumentSnapshot item) {
+
+                    }
+                });
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String userMessage = userMessageInput.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
                     // Add user message to the chat list
-                    chatList.add(new ChatModel("user", userMessage));
+                    chatList.add(new ChatModel("user", userMessage, currentUser, null ));
                     chatAdapter.notifyItemInserted(chatList.size() - 1);
+                    recyclerView.scrollToPosition(chatList.size() - 1);
                     userMessageInput.setText("");
 
                     // Initialize chat with message history
@@ -118,8 +164,9 @@ public class ChatBotFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    chatList.add(new ChatModel("bot", botResponse));
+                                    chatList.add(new ChatModel("bot", botResponse, currentUser, null ));
                                     chatAdapter.notifyItemInserted(chatList.size() - 1);
+                                    recyclerView.scrollToPosition(chatList.size() - 1);
                                 }
                             });
                         }
