@@ -157,18 +157,9 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                         public void onCallback(List<QueryDocumentSnapshot> chatList) {
                             chatDataList = chatList;
                             for (QueryDocumentSnapshot chat : chatList) {
-                                //id = "P005-P001"
-                                //["", "-P001"]
-                                //["P005-"]
-                                String user2 = chat.getId().replace(code,"");
-                                String part1 = user2.split("-")[0];
-                                String part2 = user2.split("-")[1];
-
-                                String otherUserCode = (user2.split("-")[0].equals("")) ? part2 : part1 ;
+                                String otherUserCode = chat.getId().replace(code,"").replace("-","");
                                 otherUserCodes.add(otherUserCode);
                             }
-
-                            // Fetch all users and filter by chat codes
 
                         }
 
