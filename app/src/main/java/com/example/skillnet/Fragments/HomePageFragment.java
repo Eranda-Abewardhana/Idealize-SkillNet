@@ -19,18 +19,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.skillnet.Adapters.CategoryAdapter;
 import com.example.skillnet.Adapters.CategoryDataAdapter;
 import com.example.skillnet.Adapters.PostAdapter;
+import com.example.skillnet.FirebaseHelper.Firebase;
+import com.example.skillnet.FirebaseHelper.FirebaseCallback;
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HomePageFragment extends Fragment {
 
@@ -50,7 +50,7 @@ public class HomePageFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Firebase firebase = new Firebase();
         context = getActivity().getApplicationContext();
         feeds = view.findViewById(R.id.feeds);
 
@@ -78,58 +78,67 @@ public class HomePageFragment extends Fragment {
         categoriesList = new ArrayList<>();
         postList = new ArrayList<>();
 
-        // Fetch all data from the "users" collection
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            PersonData person = document.toObject(PersonData.class);
-                            personDataList.add(person);
-                            Log.d("Firestore", "User: " + person.getName());
-                        }
-                        // Load data into adapter after fetching users
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
-                    }
-                });
+        firebase.getAllUsers(new FirebaseCallback<PersonData>() {
+            @Override
+            public void onCallback(List<PersonData> list) {
+                personDataList = list;
+                checkDataReady();
+            }
 
-        // Fetch all data from the "categories" collection
-        db.collection("categories")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Categories category = document.toObject(Categories.class);
-                            categoriesList.add(category);
-                            Log.d("Firestore", "Category: " + category.getName());
-                        }
-                        // Load data into adapter after fetching categories
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
-                    }
-                });
+            @Override
+            public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
 
-        // Fetch all data from the "posts" collection
-        db.collection("posts")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Post post = document.toObject(Post.class);
-                            postList.add(post);
-                            Log.d("Firestore", "Post: " + post.getTitle());
-                        }
-                        // Load data into adapter after fetching posts
-                        loadAdapters(GlobalVariables.isWorker);
-                    } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
-                    }
-                });
+            }
+
+            @Override
+            public void onSingleCallback(PersonData item) {
+
+            }
+        });
+
+        firebase.getAllCategories(new FirebaseCallback<Categories>() {
+            @Override
+            public void onCallback(List<Categories> list) {
+                categoriesList = list;
+                checkDataReady();
+            }
+
+            @Override
+            public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onSingleCallback(Categories item) {
+
+            }
+        });
+
+        firebase.getAllPosts(new FirebaseCallback<Post>() {
+            @Override
+            public void onCallback(List<Post> list) {
+                postList = list;
+                checkDataReady();
+            }
+
+            @Override
+            public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onSingleCallback(Post item) {
+
+            }
+        });
 
         return view;
+    }
+
+    private void checkDataReady() {
+        if (!personDataList.isEmpty() && !categoriesList.isEmpty() && !postList.isEmpty()) {
+            loadAdapters(GlobalVariables.isWorker);
+        }
     }
 
     private void loadAdapters(boolean isWorker) {
@@ -158,7 +167,6 @@ public class HomePageFragment extends Fragment {
             categoryDataAdapter = new CategoryDataAdapter(categoriesList, personDataList, context);
             recyclerView2.setAdapter(categoryDataAdapter);
         }
-
 
         // Notify adapters of data changes
         if (categoryAdapter != null) categoryAdapter.notifyDataSetChanged();
