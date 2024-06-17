@@ -76,15 +76,6 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         chatAdapter = new ChatBotAdapter(chatList);
         chatRecycle.setAdapter(chatAdapter);
 
-        // Create a SimpleDateFormat instance with the desired format
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd[HH:mm:ss]", Locale.getDefault());
-
-        // Get the current date and time
-        Date now = new Date();
-
-        // Format the current time as a string
-        String formattedTime = sdf.format(now);
-
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +94,21 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View view) {
                 String userMessage = massage.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
-                    documentId = otherCode + "-" + code; // Construct the document ID
+                    if (GlobalVariables.isWorker){
+                        documentId = code + "-" + otherCode;
+                    }else {
+                        documentId = otherCode + "-" + code; // Construct the document ID
+                    }
+                    // Create a SimpleDateFormat instance with the desired format
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd[HH:mm:ss]", Locale.getDefault());
+
+                    // Get the current date and time
+                    Date now = new Date();
+
+                    // Format the current time as a string
+                    String formattedTime = sdf.format(now);
+
+
                     String fieldName = formattedTime + " " + code; // Construct the field name
 
                     // Optionally, clear the message field after sending
@@ -146,7 +151,31 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                 if (!users.isEmpty()) {
                     QueryDocumentSnapshot user = users.get(0);
                     code = user.getString("user");
+                    firebase.getChatsByCode(code, new FirebaseCallback<QueryDocumentSnapshot>() {
 
+                        @Override
+                        public void onCallback(List<QueryDocumentSnapshot> chatList) {
+                            chatDataList = chatList;
+                            for (QueryDocumentSnapshot chat : chatList) {
+                                String[] user2 = chat.getId().split(code);
+                                String otherUserCode = (!user2[0].equals(code)) ? user2[1].split("-")[1] : user2[1].split("-")[0];
+                                otherUserCodes.add(otherUserCode);
+                            }
+
+                            // Fetch all users and filter by chat codes
+
+                        }
+
+                        @Override
+                        public void onDocumentSnapshotCallback(DocumentSnapshot snapshot){
+
+                        }
+
+                        @Override
+                        public void onSingleCallback(QueryDocumentSnapshot item) {
+
+                        }
+                    });
                     firebase.getAllUsers(new FirebaseCallback<PersonData>() {
                         @Override
                         public void onCallback(List<PersonData> users) {
@@ -175,31 +204,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
 
                         }
                     });
-                    firebase.getChatsByCode(code, new FirebaseCallback<QueryDocumentSnapshot>() {
 
-                        @Override
-                        public void onCallback(List<QueryDocumentSnapshot> chatList) {
-                            chatDataList = chatList;
-                            for (QueryDocumentSnapshot chat : chatList) {
-                                String[] user2 = chat.getId().split(code);
-                                String otherUserCode = (!user2[0].equals(code)) ? user2[0].split("-")[0] : user2[1].split("-")[0];
-                                otherUserCodes.add(otherUserCode);
-                            }
-
-                            // Fetch all users and filter by chat codes
-
-                        }
-
-                        @Override
-                        public void onDocumentSnapshotCallback(DocumentSnapshot snapshot){
-
-                        }
-
-                        @Override
-                        public void onSingleCallback(QueryDocumentSnapshot item) {
-
-                        }
-                    });
                 }
             }
 
