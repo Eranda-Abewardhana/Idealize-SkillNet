@@ -6,14 +6,14 @@ public class PersonData {
     private String pCode;
     private String ImageUrl;
     private int stars;
-    private boolean iswoker;
+    private boolean isworker;
 
-    public boolean isIswoker() {
-        return iswoker;
+    public boolean isIsworker() {
+        return isworker;
     }
 
-    public void setIswoker(boolean iswoker) {
-        this.iswoker = iswoker;
+    public void setIsworker(boolean isworker) {
+        this.isworker = isworker;
     }
 
     public PersonData() {
@@ -28,11 +28,11 @@ public class PersonData {
         this.stars = stars;
     }
 
-    public PersonData(String name, String pCode, String imageUrl, boolean iswoker) {
+    public PersonData(String name, String pCode, String imageUrl, boolean isworker) {
         this.name = name;
         this.pCode = pCode;
         this.ImageUrl = imageUrl;
-        this.iswoker = iswoker;
+        this.isworker = isworker;
     }
 
     public String getImageUrl() {
