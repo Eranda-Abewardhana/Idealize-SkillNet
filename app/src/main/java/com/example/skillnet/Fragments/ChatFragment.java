@@ -161,7 +161,10 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                                 //["", "-P001"]
                                 //["P005-"]
                                 String user2 = chat.getId().replace(code,"");
-                                String otherUserCode = (user2.split("-")[0].equals("-")) ? user2.split("-")[1] : user2.split("-")[0];
+                                String part1 = user2.split("-")[0];
+                                String part2 = user2.split("-")[1];
+
+                                String otherUserCode = (user2.split("-")[0].equals("")) ? part2 : part1 ;
                                 otherUserCodes.add(otherUserCode);
                             }
 
