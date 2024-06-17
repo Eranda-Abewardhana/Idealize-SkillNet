@@ -94,7 +94,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View view) {
                 String userMessage = massage.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
-                    if (GlobalVariables.isWorker){
+                    if (!GlobalVariables.isWorker){
                         documentId = code + "-" + otherCode;
                     }else {
                         documentId = otherCode + "-" + code; // Construct the document ID
@@ -157,8 +157,11 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                         public void onCallback(List<QueryDocumentSnapshot> chatList) {
                             chatDataList = chatList;
                             for (QueryDocumentSnapshot chat : chatList) {
-                                String[] user2 = chat.getId().split(code);
-                                String otherUserCode = (!user2[0].equals(code)) ? user2[1].split("-")[1] : user2[1].split("-")[0];
+                                //id = "P005-P001"
+                                //["", "-P001"]
+                                //["P005-"]
+                                String user2 = chat.getId().replace(code,"");
+                                String otherUserCode = (user2.split("-")[0].equals("-")) ? user2.split("-")[1] : user2.split("-")[0];
                                 otherUserCodes.add(otherUserCode);
                             }
 
@@ -180,7 +183,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                         @Override
                         public void onCallback(List<PersonData> users) {
                             for (PersonData personData : users) {
-                                if (otherUserCodes.contains(personData.getpCode()) && (personData.isIswoker() == !GlobalVariables.isWorker)) {
+                                if (otherUserCodes.contains(personData.getpCode()) && (personData.isIsworker() == !GlobalVariables.isWorker)) {
                                     personDataList.add(personData);
                                 }
                                 if (personData.getpCode().equals(code)) {
@@ -192,6 +195,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                             chatListAdapter = new ChatListAdapter(personDataList, ChatFragment.this);
                             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                             recyclerView.setAdapter(chatListAdapter);
+                            chatListAdapter.notifyDataSetChanged();
                         }
 
                         @Override
