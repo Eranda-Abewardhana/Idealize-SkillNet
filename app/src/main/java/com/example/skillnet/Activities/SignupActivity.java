@@ -7,11 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,25 +20,24 @@ import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore ;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SignupActivity extends AppCompatActivity {
-    EditText editTextPassword, editTextEmail , Name , phoneNumber ;
+    EditText editTextPassword, editTextEmail, Name, phoneNumber;
     Button button;
     FirebaseAuth mAuth;
-    FirebaseFirestore fstore ;
+    FirebaseFirestore fStore;
     ProgressBar progressBar;
-    TextView textView, tvAlreadyHaveAccount;
-    FirebaseFirestore fStore ;
+    TextView tvAlreadyHaveAccount;
 
     @Override
     public void onStart() {
@@ -59,35 +54,49 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
         mAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
+
         Name = findViewById(R.id.name);
         phoneNumber = findViewById(R.id.PhoneNumber);
         editTextPassword = findViewById(R.id.password);
         editTextEmail = findViewById(R.id.email);
-        String email = editTextEmail.toString();
         progressBar = findViewById(R.id.progressbar);
         button = findViewById(R.id.SignupButton);
         tvAlreadyHaveAccount = findViewById(R.id.tv_already_have_account);
-        fStore= FirebaseFirestore.getInstance();
+
+        CircleImageView circleImageView = findViewById(R.id.circleImageView);
+
+        // Set an OnClickListener on the CircleImageView
+        circleImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent to go back to the login activity
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                // Optionally, finish the current activity
+                finish();
+            }
+        });
 
         // Set clickable text for "Log in"
         tvAlreadyHaveAccount.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-               startActivity(intent);
-           }
-       });
-
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                String email, password , fullName,Phone ;
+                String email, password, fullName, Phone;
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
-                fullName =  String.valueOf(Name.getText());
+                fullName = String.valueOf(Name.getText());
                 Phone = String.valueOf(phoneNumber.getText());
 
                 if (TextUtils.isEmpty(email)) {
@@ -109,14 +118,14 @@ public class SignupActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
                                     DocumentReference documentReference = fStore.collection("users_signup").document(email);
-                                    Map<String,Object> user = new HashMap<>();
-                                    user.put("fName",fullName);
+                                    Map<String, Object> user = new HashMap<>();
+                                    user.put("fName", fullName);
                                     user.put("email", email);
-                                    user.put("PhoneNumber",Phone);
+                                    user.put("PhoneNumber", Phone);
                                     documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Log.d(TAG,"User Profile is Created for Email"+email);
+                                            Log.d(TAG, "User Profile is Created for Email: " + email);
                                         }
                                     });
                                     Intent intent2 = new Intent(getApplicationContext(), MainActivity.class);
