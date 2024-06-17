@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.TextView;
 
 import com.example.skillnet.Adapters.ChatBotAdapter;
@@ -174,6 +176,8 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                                 otherUserCodes.add(otherUserCode);
                             }
 
+                            // Fetch all users and filter by chat codes
+
                         }
 
                         @Override
@@ -189,20 +193,25 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                     firebase.getAllUsers(new FirebaseCallback<PersonData>() {
                         @Override
                         public void onCallback(List<PersonData> users) {
-                            for (PersonData personData : users) {
-                                if (otherUserCodes.contains(personData.getpCode()) && (personData.isIsworker() == !GlobalVariables.isWorker)) {
-                                    personDataList.add(personData);
+                            if (users != null) {
+                                for (PersonData personData : users) {
+                                    if (otherUserCodes.contains(personData.getpCode()) && (personData.isIsworker() != GlobalVariables.isWorker)) {
+                                        personDataList.add(personData);
+                                    }
+                                    if (personData.getpCode().equals(code)) {
+                                        currentUser = personData;
+                                    }
                                 }
-                                if (personData.getpCode().equals(code)) {
-                                    currentUser = personData;
-                                }
-                            }
 
-                            // Set adapter with fetched data
-                            chatListAdapter = new ChatListAdapter(personDataList, ChatFragment.this);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                            recyclerView.setAdapter(chatListAdapter);
-                            chatListAdapter.notifyDataSetChanged();
+                                // Set adapter with fetched data
+                                chatListAdapter = new ChatListAdapter(personDataList, ChatFragment.this);
+                                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                                recyclerView.setAdapter(chatListAdapter);
+                                chatListAdapter.notifyDataSetChanged();
+                            } else {
+                                // Handle null case
+                                Toast.makeText(getContext(), "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                            }
                         }
 
                         @Override
@@ -229,7 +238,18 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
 
             }
         });
-
+        // Add a timeout mechanism (e.g., using a Handler)
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (personDataList.isEmpty()) {
+                    // Timeout reached without data
+                    Toast.makeText(getContext(), "Operation timed out", Toast.LENGTH_SHORT).show();
+                    // Optionally, you can cancel the Firebase request here if it's supported
+                }
+            }
+        }, 10000); // 10 seconds timeout
         return view;
     }
 
