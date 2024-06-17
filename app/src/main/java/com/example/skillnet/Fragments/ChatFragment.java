@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.skillnet.Adapters.ChatBotAdapter;
 import com.example.skillnet.Adapters.ChatListAdapter;
@@ -56,6 +57,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     private String documentId = "";
     private  Firebase firebase;
     private PersonData currentUser = new PersonData();
+    private TextView name,workType;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +77,15 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         chatRecycle.setLayoutManager(new LinearLayoutManager(getContext()));
         chatAdapter = new ChatBotAdapter(chatList);
         chatRecycle.setAdapter(chatAdapter);
+        name = view.findViewById(R.id.name);
+        workType = view.findViewById(R.id.category_emp);
+
+        if(GlobalVariables.isWorker){
+            workType.setText("Worker");
+        }
+        else{
+            workType.setText("Client");
+        }
 
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +93,8 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View v) {
                 if(chatLayout.getVisibility() == View.VISIBLE){
                     chatLayout.setVisibility(View.GONE) ;
+                    chatList.clear();
+                    chatAdapter.notifyDataSetChanged();
                 }
                 else {
                     getParentFragmentManager().popBackStack();
@@ -225,17 +238,17 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     public void onItemClicked(PersonData person, int position) {
 
         chatLayout.setVisibility(View.VISIBLE);
+        name.setText(person.getName());
+        otherCode = person.getpCode();
 
         // Ensure position is within bounds
-        if (position >= 0 && position < chatDataList.size()) {
-            QueryDocumentSnapshot chatDocument = chatDataList.get(position);
-            Map<String, Object> documentData = chatDocument.getData();
-            UpdateAdapter(documentData, person);
-            // Set the document ID dynamically
-            String documentId = chatDocument.getId();
+        QueryDocumentSnapshot chatDocument = chatDataList.get(position);
+        Map<String, Object> documentData = chatDocument.getData();
+        UpdateAdapter(documentData, person);
+        // Set the document ID dynamically
+        String documentId = chatDocument.getId();
 
-            RefreshAndLoadChat(documentId, person);
-        }
+        RefreshAndLoadChat(documentId, person);
     }
 
     private void UpdateAdapter(Map<String, Object> documentData, PersonData person) {
