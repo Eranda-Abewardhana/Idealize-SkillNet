@@ -19,48 +19,21 @@
         tools:layout_editor_absoluteX="17dp"
         tools:layout_editor_absoluteY="22dp" />
 
-
-    <!-- Logout Button -->
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="logout"
-
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="68dp"
-        tools:layout_editor_absoluteY="22dp" />
-
-    <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:contentDescription="Profile"
-        android:layout_width="55dp"
-        android:layout_height="62dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="16dp"
-        android:clickable="true"
-        app:backgroundTint="#753F51B5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/profile" />
-
     <!-- Settings Title -->
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="102dp"
         android:fontFamily="monospace"
         android:text="Settings"
         android:textAllCaps="false"
         android:textColor="@color/lite_black"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/logout"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- LinearLayout for Account Options -->
     <LinearLayout
@@ -77,18 +50,19 @@
 
         <!-- Add Account Row -->
         <LinearLayout
+            android:id="@+id/add"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:orientation="horizontal"
             android:layout_marginTop="10dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
                 android:padding="9dp"
-                app:srcCompat="@drawable/add_account"
-                android:layout_marginEnd="16dp" />
+                app:srcCompat="@drawable/add_account" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -103,18 +77,19 @@
 
         <!-- Switch Account Row -->
         <LinearLayout
+            android:id="@+id/change"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:orientation="horizontal"
             android:layout_marginTop="10dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
                 android:padding="9dp"
-                app:srcCompat="@drawable/switch_account"
-                android:layout_marginEnd="16dp" />
+                app:srcCompat="@drawable/switch_account" />
 
             <TextView
                 android:id="@+id/textView7"
@@ -130,27 +105,28 @@
                 android:id="@+id/switch1"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:padding="9dp"
                 android:layout_marginStart="16dp"
                 android:fontFamily="monospace"
+                android:padding="9dp"
                 android:textColor="@color/lite_black"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Log Out Row -->
         <LinearLayout
+            android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:orientation="horizontal"
             android:layout_marginTop="10dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
                 android:padding="9dp"
-                app:srcCompat="@drawable/log_out"
-                android:layout_marginEnd="16dp" />
+                app:srcCompat="@drawable/log_out" />
 
             <TextView
                 android:id="@+id/textView8"
