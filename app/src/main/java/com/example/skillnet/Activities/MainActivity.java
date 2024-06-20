@@ -21,6 +21,7 @@ import com.example.skillnet.Fragments.ChatBotFragment;
 import com.example.skillnet.Fragments.HomePageFragment;
 import com.example.skillnet.Fragments.NotificationFragment;
 import com.example.skillnet.Fragments.ProfileFragment;
+import com.example.skillnet.Fragments.SettingFragment;
 import com.example.skillnet.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(new HomePageFragment());
         viewPagerAdapter.addFragment(new ChatBotFragment());
         viewPagerAdapter.addFragment(new NotificationFragment());
-        viewPagerAdapter.addFragment(new ProfileFragment());
+        viewPagerAdapter.addFragment(new SettingFragment());
         viewPager2.setAdapter(viewPagerAdapter);
 
         int color = ContextCompat.getColor(this, R.color.lite_black);

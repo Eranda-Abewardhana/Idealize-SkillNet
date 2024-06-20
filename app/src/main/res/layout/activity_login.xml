@@ -8,6 +8,12 @@
     android:gravity="center"
     android:padding="15dp" >
 
+    <Button
+        android:id="@+id/back"
+        android:layout_width="106dp"
+        android:layout_height="wrap_content"
+        android:text="Button" />
+
     <TextView
         android:text="@string/login"
         android:textSize="28sp"
