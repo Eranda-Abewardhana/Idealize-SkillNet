@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +23,7 @@ public class SettingFragment extends Fragment {
     private ImageView backButton;
     private TextView settingsTitle;
     private LinearLayout addAccountRow;
-    private LinearLayout switchAccountRow;
+    private Switch switchAccountRow;
     private LinearLayout logOutRow;
 
     public SettingFragment() {
@@ -58,9 +59,9 @@ public class SettingFragment extends Fragment {
 
         backButton = view.findViewById(R.id.imageView2);
         settingsTitle = view.findViewById(R.id.textView2);
-        addAccountRow = view.findViewById(R.id.accountOptionsLayout).findViewById(R.id.add);
-        switchAccountRow = view.findViewById(R.id.accountOptionsLayout).findViewById(R.id.switch1);
-        logOutRow = view.findViewById(R.id.accountOptionsLayout).findViewById(R.id.logout);
+        addAccountRow = view.findViewById(R.id.add);
+        switchAccountRow = view.findViewById(R.id.switch1);
+        logOutRow = view.findViewById(R.id.logout);
 
         // Set up any necessary listeners and handlers
         backButton.setOnClickListener(v -> {
@@ -68,13 +69,10 @@ public class SettingFragment extends Fragment {
         });
 
         addAccountRow.setOnClickListener(v -> {
-            // Handle add account row click
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                GlobalVariables.addAccount = true; // Assuming you have this variable in GlobalVariables
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
+            GlobalVariables.addAccount = true;
+
         });
 
         switchAccountRow.setOnClickListener(v -> {
@@ -98,10 +96,10 @@ public class SettingFragment extends Fragment {
         // Toggle the account type
         if (GlobalVariables.isWorker) {
             GlobalVariables.isWorker = false;
-            GlobalVariables.isNotWorker = true;
+
         } else {
             GlobalVariables.isWorker = true;
-            GlobalVariables.isNotWorker = false;
+
         }
 
         // Start LoginActivity to sign in with the new account type
