@@ -16,6 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.skillnet.FirebaseHelper.Firebase;
+import com.example.skillnet.FirebaseHelper.FirebaseCallback;
+import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,9 +27,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -36,8 +41,11 @@ public class SignupActivity extends AppCompatActivity {
     Button button;
     FirebaseAuth mAuth;
     FirebaseFirestore fStore;
+
+    String maxPCode = "";
     ProgressBar progressBar;
     TextView tvAlreadyHaveAccount;
+    Firebase firebase ;
 
     @Override
     public void onStart() {
@@ -52,12 +60,12 @@ public class SignupActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        firebase = new Firebase();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
         mAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
-
         Name = findViewById(R.id.name);
         phoneNumber = findViewById(R.id.PhoneNumber);
         editTextPassword = findViewById(R.id.password);
@@ -110,33 +118,81 @@ public class SignupActivity extends AppCompatActivity {
                     return;
                 }
 
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE);
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
-                                    DocumentReference documentReference = fStore.collection("users_signup").document(email);
-                                    Map<String, Object> user = new HashMap<>();
-                                    user.put("fName", fullName);
-                                    user.put("email", email);
-                                    user.put("PhoneNumber", Phone);
-                                    documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "User Profile is Created for Email: " + email);
-                                        }
-                                    });
-                                    Intent intent2 = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(intent2);
-                                    finish();
-                                } else {
-                                    Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                                }
+                firebase.getAllUsers(new FirebaseCallback<PersonData>() {
+                    @Override
+                    public void onCallback(List<PersonData> list) {
+                        int maxNumber = 0 ;
+
+
+                        for (PersonData person : list) {
+                            String pCode = person.getpCode();
+                            int number = Integer.parseInt(pCode.replace("P",""));
+
+                            if (number > maxNumber) {
+                                maxNumber = number;
+
                             }
-                        });
+                        }
+                        String buffer = "";
+                        if(maxNumber < 9) {
+                            buffer = "00" ;
+                        } else if(10 <= maxNumber && maxNumber< 100 ){
+                            buffer = "0";
+                        } else if (100 <= maxNumber && maxNumber< 1000 ){
+                        }
+                        else{
+                            Toast.makeText(SignupActivity.this, "Accounts are Full", Toast.LENGTH_SHORT).show();
+                            return ;
+                        }
+
+                        maxPCode = "P" + buffer + String.valueOf(maxNumber);
+
+
+                        mAuth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        progressBar.setVisibility(View.GONE);
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
+                                            DocumentReference documentReference = fStore.collection("users_signup").document(email);
+                                            Map<String, Object> user = new HashMap<>();
+                                            user.put("fName", fullName);
+                                            user.put("email", email);
+                                            user.put("PhoneNumber", Phone);
+                                            user.put("user", maxPCode);  // Add the new P code here
+                                            documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Log.d(TAG, "User Profile is Created for Email: " + email);
+                                                }
+                                            });
+                                            Intent intent2 = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent2);
+                                            finish();
+                                        } else {
+                                            Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+                        // Implement if needed
+                    }
+
+                    @Override
+                    public void onSingleCallback(PersonData item) {
+                        // Implement if needed
+                    }
+                });
             }
         });
+    }
+
+    private String generateNewPCode(int maxNumber) {
+        int newNumber = maxNumber + 1;
+        return "P" + String.format("%03d", newNumber);
     }
 }
