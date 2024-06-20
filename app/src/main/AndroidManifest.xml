@@ -22,7 +22,7 @@
             android:name=".Activities.edit_profile"
             android:exported="false" />
         <activity
-            android:name=".Activities.SignupActivity"
+            android:name=".Activities.SignUpAvtivity"
             android:exported="false" />
         <activity
             android:name=".Activities.LoginActivity"

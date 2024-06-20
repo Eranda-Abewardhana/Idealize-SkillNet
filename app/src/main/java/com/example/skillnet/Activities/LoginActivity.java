@@ -1,8 +1,5 @@
 package com.example.skillnet.Activities;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -28,89 +25,77 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-<<<<<<< HEAD
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_STORAGE = 112;
-=======
-public class LoginActivity extends AppCompatActivity {
->>>>>>> origin/Malki
+
     TextInputEditText editTextPassword, editTextEmail;
-    Button buttonLogin ;
-    FirebaseAuth mAuth ;
-    ProgressBar progressBar ;
-    TextView textView   ;
+    Button buttonLogin;
+    FirebaseAuth mAuth;
+    ProgressBar progressBar;
+    TextView textView;
 
     @Override
-
-
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
         }
-
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
-        editTextPassword =findViewById(R.id.password) ;
-        editTextEmail = findViewById(R.id.email) ;
+        editTextPassword = findViewById(R.id.password);
+        editTextEmail = findViewById(R.id.email);
         progressBar = findViewById(R.id.progressbar);
-        buttonLogin = findViewById(R.id.LoginButton) ;
+        buttonLogin = findViewById(R.id.LoginButton);
         textView = findViewById(R.id.SigninNow);
-
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkAndRequestPermissions()) {
                 // Permissions are already granted, continue with your logic
+                createTempFile();
             }
         } else {
             // Permissions are automatically granted on SDK < 23 upon installation
-        }
-        File cacheDir = this.getCacheDir();
-        File myFile = new File(cacheDir, "my_temp_file.txt");
-
-        try (FileOutputStream fos = new FileOutputStream(myFile)) {
-            fos.write("Hello, World!".getBytes());
-            fos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+            createTempFile();
         }
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class) ;
+                Intent intent = new Intent(getApplicationContext(), SignUpAvtivity.class);
                 startActivity(intent);
                 finish();
             }
-    }) ;
+        });
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-                String email, password ;
-                email = String.valueOf(editTextEmail.getText()) ;
-                password = String.valueOf(editTextPassword.getText()) ;
+                String email, password;
+                email = String.valueOf(editTextEmail.getText());
+                password = String.valueOf(editTextPassword.getText());
 
-                if (TextUtils.isEmpty(email)){
+                if (TextUtils.isEmpty(email)) {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(LoginActivity.this,"Email cannot Be empty",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (TextUtils.isEmpty(password)) {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(LoginActivity.this, "Password cannot Be empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 mAuth.signInWithEmailAndPassword(email, password)
@@ -120,21 +105,21 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     progressBar.setVisibility(View.GONE);
                                     // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(LoginActivity.this, "Login SuccessFull.",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "Login Successful.", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
                                     progressBar.setVisibility(View.GONE);
                                     // If sign in fails, display a message to the user.
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
             }
         });
-}
+    }
+
     private boolean checkAndRequestPermissions() {
         int permissionWriteStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
@@ -145,5 +130,30 @@ public class LoginActivity extends AppCompatActivity {
             return true;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_WRITE_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed with file creation
+                createTempFile();
+            } else {
+                // Permission denied, handle accordingly
+                Toast.makeText(this, "Permission denied to write to storage", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void createTempFile() {
+        File cacheDir = this.getCacheDir();
+        File myFile = new File(cacheDir, "my_temp_file.txt");
+
+        try (FileOutputStream fos = new FileOutputStream(myFile)) {
+            fos.write("Hello, World!".getBytes());
+            fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
-}}
