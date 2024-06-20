@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "303037229667",
+    "project_id": "skillnet-9828e",
+    "storage_bucket": "skillnet-9828e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303037229667:android:255d0c77377dd9f1616656",
+        "android_client_info": {
+          "package_name": "com.example.skillnet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfpJU6xNEJmMokZVn0ixHBVSQt9APR8dc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
