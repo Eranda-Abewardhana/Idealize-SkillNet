@@ -28,12 +28,16 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+<<<<<<< HEAD
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_STORAGE = 112;
+=======
+public class LoginActivity extends AppCompatActivity {
+>>>>>>> origin/Malki
     TextInputEditText editTextPassword, editTextEmail;
     Button buttonLogin ;
     FirebaseAuth mAuth ;
@@ -142,3 +146,4 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 }
+}}
