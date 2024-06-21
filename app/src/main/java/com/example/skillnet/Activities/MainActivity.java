@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(new HomePageFragment());
         viewPagerAdapter.addFragment(new ChatBotFragment());
         viewPagerAdapter.addFragment(new NotificationFragment());
-        viewPagerAdapter.addFragment(new SettingFragment());
+        viewPagerAdapter.addFragment(new ProfileFragment());
         viewPager2.setAdapter(viewPagerAdapter);
 
         int color = ContextCompat.getColor(this, R.color.lite_black);

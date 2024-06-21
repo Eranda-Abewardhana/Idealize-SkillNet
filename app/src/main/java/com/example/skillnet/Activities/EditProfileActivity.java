@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.skillnet.R;
@@ -19,7 +18,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class edit_profile extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
     private EditText etName, etPhone, etEmail;
     private Button btnSave;
@@ -84,29 +83,29 @@ public class edit_profile extends AppCompatActivity {
                                         }
                                     } else {
                                         // Handle case where user document doesn't exist
-                                        Toast.makeText(edit_profile.this, "User document does not exist", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(EditProfileActivity.this, "User document does not exist", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
                                     // Handle task failure when fetching user document
-                                    Toast.makeText(edit_profile.this, "Failed to fetch user document", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(EditProfileActivity.this, "Failed to fetch user document", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
                             // Handle case where 'user' field is null or empty
-                            Toast.makeText(edit_profile.this, "'user' field is null or empty", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditProfileActivity.this, "'user' field is null or empty", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         // Handle case where document doesn't exist in users_signup collection
-                        Toast.makeText(edit_profile.this, "Document does not exist in users_signup collection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this, "Document does not exist in users_signup collection", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     // Handle task failure when fetching document from users_signup collection
-                    Toast.makeText(edit_profile.this, "Failed to fetch data from users_signup collection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditProfileActivity.this, "Failed to fetch data from users_signup collection", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
             // Handle the case where there is no authenticated user
-            Toast.makeText(edit_profile.this, "No authenticated user", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this, "No authenticated user", Toast.LENGTH_SHORT).show();
         }
 
         btnSave.setOnClickListener(v -> {
@@ -121,9 +120,9 @@ public class edit_profile extends AppCompatActivity {
                             "email", email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(edit_profile.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(edit_profile.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditProfileActivity.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
                         }
                     });
         });

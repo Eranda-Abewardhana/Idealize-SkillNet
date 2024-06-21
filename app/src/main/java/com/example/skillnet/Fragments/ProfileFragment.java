@@ -12,8 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.skillnet.Activities.SettingsActivity;
-import com.example.skillnet.Activities.edit_profile;
-import com.example.skillnet.Activities.SettingsActivity;
+import com.example.skillnet.Activities.EditProfileActivity;
 import com.example.skillnet.R;
 
 public class ProfileFragment extends Fragment {
@@ -42,7 +41,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Launch the edit_profile activity
-                Intent intent = new Intent(getActivity(), edit_profile.class);
+                Intent intent = new Intent(getActivity(), EditProfileActivity.class);
                 startActivity(intent);
             }
         });
