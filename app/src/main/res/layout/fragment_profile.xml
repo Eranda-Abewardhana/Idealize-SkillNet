@@ -44,7 +44,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:drawableLeft="@drawable/ic_profile_placeholder"
         android:drawablePadding="8dp"
         android:text="Nawala, Sri Lanka"
         android:textSize="14sp"
@@ -125,7 +124,6 @@
             android:layout_column="0"
             android:layout_margin="8dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/img_3"
             android:contentDescription="Project 1" />
 
         <ImageView
@@ -135,7 +133,6 @@
             android:layout_column="1"
             android:layout_margin="8dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/img_3"
             android:contentDescription="Project 2" />
 
         <ImageView
@@ -145,7 +142,6 @@
             android:layout_column="0"
             android:layout_margin="8dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/img_3"
             android:contentDescription="Project 3" />
 
         <ImageView
@@ -155,7 +151,6 @@
             android:layout_column="1"
             android:layout_margin="8dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/img_3"
             android:contentDescription="Project 4" />
     </GridLayout>
 
