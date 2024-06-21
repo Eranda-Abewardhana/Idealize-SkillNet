@@ -43,7 +43,6 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="edit_profile_image"
-            android:src="@drawable/ic_edit"
             android:layout_marginTop="-40dp"
             android:layout_marginLeft="70dp"
             android:layout_gravity="end" />
