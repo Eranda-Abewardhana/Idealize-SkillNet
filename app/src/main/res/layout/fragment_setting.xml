@@ -11,13 +11,13 @@
     <!-- Back Button -->
     <ImageView
         android:id="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/back"
-        tools:layout_editor_absoluteX="17dp"
-        tools:layout_editor_absoluteY="22dp" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back" />
 
     <!-- Settings Title -->
     <TextView
@@ -97,13 +97,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="monospace"
-                android:text="Switch Account"
+                android:text="Switch Worker Account"
                 android:textColor="@color/lite_black"
                 android:textStyle="bold" />
 
             <Switch
                 android:id="@+id/switch1"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginStart="16dp"
                 android:fontFamily="monospace"

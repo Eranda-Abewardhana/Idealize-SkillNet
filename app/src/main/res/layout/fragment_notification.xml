@@ -3,14 +3,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="10dp"
     tools:context=".Fragments.NotificationFragment">
 
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:background="@color/black"
+        android:layout_height="wrap_content" >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/alert"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_margin="20dp"
+                android:background="@drawable/button_background_see_more"
+                android:textStyle="bold"
+
+                android:text="You have 5 Massages"
+                android:textAlignment="center"
+                android:textColor="@color/gold"
+                android:textSize="16dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:padding="10dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="TextView" />
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:layout_marginStart="10dp"
+        android:textColor="@color/dark_blue"
+        android:text="Review Notifications" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/review_notification_item" />
 </LinearLayout>

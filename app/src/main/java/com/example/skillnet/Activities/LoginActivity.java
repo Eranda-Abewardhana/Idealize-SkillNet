@@ -1,13 +1,5 @@
 package com.example.skillnet.Activities;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,6 +11,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.R;
@@ -34,61 +32,119 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
+
     private static final int REQUEST_WRITE_STORAGE = 112;
-    TextInputEditText editTextPassword, editTextEmail;
-    Button buttonLogin,back ;
-    FirebaseAuth auth ;
-    ProgressBar progressBar ;
-    TextView textView   ;
-    FirebaseUser user ;
+    private TextInputEditText editTextPassword, editTextEmail;
+    private Button buttonLogin, back;
+    private ProgressBar progressBar;
+    private TextView textView;
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private GlobalVariables globalVariables;
 
-
-    @Override
-
-
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if(currentUser != null && !GlobalVariables.addAccount){
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
-        editTextPassword =findViewById(R.id.password) ;
-        editTextEmail = findViewById(R.id.email) ;
+
+        // Initialize views
+        editTextPassword = findViewById(R.id.password);
+        editTextEmail = findViewById(R.id.email);
         progressBar = findViewById(R.id.progressbar);
-        buttonLogin = findViewById(R.id.LoginButton) ;
+        buttonLogin = findViewById(R.id.LoginButton);
         back = findViewById(R.id.back);
         textView = findViewById(R.id.SigninNow);
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                user = auth.getCurrentUser();
-                if (user == null) {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    GlobalVariables.addAccount = false;
-                    startActivity(intent);
-                    finish();
-                }
+        // Initialize GlobalVariables ViewModel
+        globalVariables = new ViewModelProvider(this).get(GlobalVariables.class);
 
-
+        // Back button click listener
+        back.setOnClickListener(v -> {
+            user = auth.getCurrentUser();
+            if (user == null) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                GlobalVariables.addAccount = false;
+                startActivity(intent);
+                finish();
             }
         });
+
+        // Check and request permissions if necessary
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkAndRequestPermissions()) {
-                // Permissions are already granted, continue with your logic
-            }
-        } else {
-            // Permissions are automatically granted on SDK < 23 upon installation
+            checkAndRequestPermissions();
         }
+
+        // Create a temporary file
+        createTemporaryFile();
+
+        // Sign up TextView click listener
+        textView.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        // Login button click listener
+        buttonLogin.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            String email = editTextEmail.getText().toString().trim();
+            String password = editTextPassword.getText().toString().trim();
+
+            if (TextUtils.isEmpty(email)) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(LoginActivity.this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Authenticate user
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        // Redirect to MainActivity if user is already logged in and no new account is being added
+        if (currentUser != null && !GlobalVariables.addAccount) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    // Method to check and request WRITE_EXTERNAL_STORAGE permission
+    private void checkAndRequestPermissions() {
+        int permissionWriteStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        }
+    }
+
+    // Method to create a temporary file
+    private void createTemporaryFile() {
         File cacheDir = this.getCacheDir();
         File myFile = new File(cacheDir, "my_temp_file.txt");
 
@@ -97,65 +153,6 @@ public class LoginActivity extends AppCompatActivity {
             fos.flush();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class) ;
-                startActivity(intent);
-                finish();
-            }
-    }) ;
-
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                String email, password ;
-                email = String.valueOf(editTextEmail.getText()) ;
-                password = String.valueOf(editTextPassword.getText()) ;
-
-                if (TextUtils.isEmpty(email)){
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(LoginActivity.this,"Email cannot Be empty",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(LoginActivity.this, "Password cannot Be empty", Toast.LENGTH_SHORT).show();
-                }
-
-                auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    progressBar.setVisibility(View.GONE);
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(LoginActivity.this, "Login SuccessFull.",Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                    // If sign in fails, display a message to the user.
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            }
-        });
-}
-    private boolean checkAndRequestPermissions() {
-        int permissionWriteStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
-            return false;
-        } else {
-            return true;
         }
     }
 }

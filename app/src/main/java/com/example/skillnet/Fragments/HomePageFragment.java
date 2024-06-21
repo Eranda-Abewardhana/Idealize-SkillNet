@@ -38,9 +38,6 @@ public class HomePageFragment extends Fragment {
     private CategoryAdapter categoryAdapter;
     private PostAdapter postAdapter;
     private CategoryDataAdapter categoryDataAdapter;
-    private List<Categories> categoriesList;
-    private List<Post> postList;
-    private List<PersonData> personDataList;
     private Context context;
     private TextView feeds;
 
@@ -73,15 +70,14 @@ public class HomePageFragment extends Fragment {
             }
         });
 
-        // Initialize data lists
-        personDataList = new ArrayList<>();
-        categoriesList = new ArrayList<>();
-        postList = new ArrayList<>();
+        GlobalVariables.personDataList.clear();
+        GlobalVariables.categoriesList.clear();
+        GlobalVariables.postList.clear();
 
         firebase.getAllUsers(new FirebaseCallback<PersonData>() {
             @Override
             public void onCallback(List<PersonData> list) {
-                personDataList = list;
+                GlobalVariables.personDataList = list;
                 checkDataReady();
             }
 
@@ -99,7 +95,7 @@ public class HomePageFragment extends Fragment {
         firebase.getAllCategories(new FirebaseCallback<Categories>() {
             @Override
             public void onCallback(List<Categories> list) {
-                categoriesList = list;
+                GlobalVariables.categoriesList = list;
                 checkDataReady();
             }
 
@@ -117,7 +113,7 @@ public class HomePageFragment extends Fragment {
         firebase.getAllPosts(new FirebaseCallback<Post>() {
             @Override
             public void onCallback(List<Post> list) {
-                postList = list;
+                GlobalVariables.postList = list;
                 checkDataReady();
             }
 
@@ -136,14 +132,14 @@ public class HomePageFragment extends Fragment {
     }
 
     private void checkDataReady() {
-        if (!personDataList.isEmpty() && !categoriesList.isEmpty() && !postList.isEmpty()) {
+        if (!GlobalVariables.personDataList.isEmpty() && !GlobalVariables.categoriesList.isEmpty() && !GlobalVariables.postList.isEmpty()) {
             loadAdapters(GlobalVariables.isWorker);
         }
     }
 
     private void loadAdapters(boolean isWorker) {
         // Ensure all data is fetched before setting adapters
-        if (personDataList.isEmpty() || categoriesList.isEmpty() || postList.isEmpty()) {
+        if (GlobalVariables.personDataList.isEmpty() || GlobalVariables.categoriesList.isEmpty() || GlobalVariables.postList.isEmpty()) {
             return;
         }
 
@@ -152,7 +148,7 @@ public class HomePageFragment extends Fragment {
             recyclerView1.setVisibility(View.GONE);
             recyclerView2.setVisibility(View.GONE);
             feeds.setText("Jobs");
-            postAdapter = new PostAdapter(postList, categoriesList, personDataList, context);
+            postAdapter = new PostAdapter(GlobalVariables.postList, GlobalVariables.categoriesList, GlobalVariables.personDataList, context);
             recyclerView3.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
             recyclerView3.setAdapter(postAdapter);
         } else {
@@ -160,11 +156,11 @@ public class HomePageFragment extends Fragment {
             recyclerView1.setVisibility(View.VISIBLE);
             recyclerView2.setVisibility(View.VISIBLE);
             feeds.setText("Categories");
-            categoryAdapter = new CategoryAdapter(categoriesList);
+            categoryAdapter = new CategoryAdapter(GlobalVariables.categoriesList);
             recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             recyclerView1.setAdapter(categoryAdapter);
 
-            categoryDataAdapter = new CategoryDataAdapter(categoriesList, personDataList, context);
+            categoryDataAdapter = new CategoryDataAdapter(GlobalVariables.categoriesList, GlobalVariables.personDataList, context);
             recyclerView2.setAdapter(categoryDataAdapter);
         }
 

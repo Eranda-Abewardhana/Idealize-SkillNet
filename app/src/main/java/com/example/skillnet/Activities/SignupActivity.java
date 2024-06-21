@@ -155,7 +155,7 @@ public class SignupActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         progressBar.setVisibility(View.GONE);
                                         if (task.isSuccessful()) {
-                                            Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
+
                                             DocumentReference documentReference = fStore.collection("users_signup").document(email);
                                             Map<String, Object> user = new HashMap<>();
                                             user.put("fName", fullName);
@@ -165,9 +165,23 @@ public class SignupActivity extends AppCompatActivity {
                                             documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
+//                                                    Log.d(TAG, "User Profile is Created for Email: " + email);
+                                                }
+                                            });
+                                            DocumentReference documentReference2 = fStore.collection("users").document(maxPCode);
+                                            Map<String, Object> user2 = new HashMap<>();
+                                            user2.put("imageUrl", "");
+                                            user2.put("isworker", false);
+                                            user2.put("name", fullName);
+                                            user2.put("pCode", maxPCode);
+                                            user2.put("stars", 0);
+                                            documentReference2.set(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
                                                     Log.d(TAG, "User Profile is Created for Email: " + email);
                                                 }
                                             });
+                                            Toast.makeText(SignupActivity.this, "Account Created", Toast.LENGTH_SHORT).show();
                                             Intent intent2 = new Intent(getApplicationContext(), MainActivity.class);
                                             startActivity(intent2);
                                             finish();
