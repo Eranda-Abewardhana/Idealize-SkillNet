@@ -13,4 +13,9 @@
     <string name="password2">Confirm Password</string>
     <string name="phone_number">Phone Number</string>
     <string name="already_have_an_account_log_in">Already have an Account?</string>
+    <string name="name">Name</string>
+    <string name="welcome">Welcome,</string>
+    <string name="please_create_an_account_to_continue">Please create an account to continue!</string>
+    <string name="aaa">Confirm Password</string>
+    <string name="aa">Sign Up</string>
 </resources>

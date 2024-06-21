@@ -21,6 +21,7 @@ import com.example.skillnet.Fragments.ChatBotFragment;
 import com.example.skillnet.Fragments.HomePageFragment;
 import com.example.skillnet.Fragments.NotificationFragment;
 import com.example.skillnet.Fragments.ProfileFragment;
+import com.example.skillnet.Fragments.SettingFragment;
 import com.example.skillnet.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;

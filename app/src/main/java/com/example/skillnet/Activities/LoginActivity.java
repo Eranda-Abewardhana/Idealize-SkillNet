@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,18 +36,20 @@ import java.io.IOException;
 public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_STORAGE = 112;
     TextInputEditText editTextPassword, editTextEmail;
-    Button buttonLogin ;
-    FirebaseAuth mAuth ;
+    Button buttonLogin,back ;
+    FirebaseAuth auth ;
     ProgressBar progressBar ;
     TextView textView   ;
+    FirebaseUser user ;
+
 
     @Override
 
 
     public void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if(currentUser != null && !GlobalVariables.addAccount){
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
@@ -57,14 +60,28 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         editTextPassword =findViewById(R.id.password) ;
         editTextEmail = findViewById(R.id.email) ;
         progressBar = findViewById(R.id.progressbar);
         buttonLogin = findViewById(R.id.LoginButton) ;
+        back = findViewById(R.id.back);
         textView = findViewById(R.id.SigninNow);
 
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                user = auth.getCurrentUser();
+                if (user == null) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    GlobalVariables.addAccount = false;
+                    startActivity(intent);
+                    finish();
+                }
 
+
+            }
+        });
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkAndRequestPermissions()) {
                 // Permissions are already granted, continue with your logic
@@ -109,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Password cannot Be empty", Toast.LENGTH_SHORT).show();
                 }
 
-                mAuth.signInWithEmailAndPassword(email, password)
+                auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
