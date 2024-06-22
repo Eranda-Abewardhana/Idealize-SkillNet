@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.skillnet.Adapters.ChatBotAdapter;
 import com.example.skillnet.Adapters.ChatListAdapter;
@@ -56,6 +59,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     private String documentId = "";
     private  Firebase firebase;
     private PersonData currentUser = new PersonData();
+    private TextView name,workType;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +79,15 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         chatRecycle.setLayoutManager(new LinearLayoutManager(getContext()));
         chatAdapter = new ChatBotAdapter(chatList);
         chatRecycle.setAdapter(chatAdapter);
+        name = view.findViewById(R.id.name);
+        workType = view.findViewById(R.id.category_emp);
+
+        if(GlobalVariables.isWorker){
+            workType.setText("Worker");
+        }
+        else{
+            workType.setText("Client");
+        }
 
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +95,8 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View v) {
                 if(chatLayout.getVisibility() == View.VISIBLE){
                     chatLayout.setVisibility(View.GONE) ;
+                    chatList.clear();
+                    chatAdapter.notifyDataSetChanged();
                 }
                 else {
                     getParentFragmentManager().popBackStack();
@@ -157,14 +172,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                         public void onCallback(List<QueryDocumentSnapshot> chatList) {
                             chatDataList = chatList;
                             for (QueryDocumentSnapshot chat : chatList) {
-                                //id = "P005-P001"
-                                //["", "-P001"]
-                                //["P005-"]
-                                String user2 = chat.getId().replace(code,"");
-                                String part1 = user2.split("-")[0];
-                                String part2 = user2.split("-")[1];
-
-                                String otherUserCode = (user2.split("-")[0].equals("")) ? part2 : part1 ;
+                                String otherUserCode = chat.getId().replace(code,"").replace("-","");
                                 otherUserCodes.add(otherUserCode);
                             }
 
@@ -185,20 +193,25 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                     firebase.getAllUsers(new FirebaseCallback<PersonData>() {
                         @Override
                         public void onCallback(List<PersonData> users) {
-                            for (PersonData personData : users) {
-                                if (otherUserCodes.contains(personData.getpCode()) && (personData.isIsworker() == !GlobalVariables.isWorker)) {
-                                    personDataList.add(personData);
+                            if (users != null) {
+                                for (PersonData personData : users) {
+                                    if (otherUserCodes.contains(personData.getpCode()) && (personData.isIsworker() != GlobalVariables.isWorker)) {
+                                        personDataList.add(personData);
+                                    }
+                                    if (personData.getpCode().equals(code)) {
+                                        currentUser = personData;
+                                    }
                                 }
-                                if (personData.getpCode().equals(code)) {
-                                    currentUser = personData;
-                                }
-                            }
 
-                            // Set adapter with fetched data
-                            chatListAdapter = new ChatListAdapter(personDataList, ChatFragment.this);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                            recyclerView.setAdapter(chatListAdapter);
-                            chatListAdapter.notifyDataSetChanged();
+                                // Set adapter with fetched data
+                                chatListAdapter = new ChatListAdapter(personDataList, ChatFragment.this);
+                                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                                recyclerView.setAdapter(chatListAdapter);
+                                chatListAdapter.notifyDataSetChanged();
+                            } else {
+                                // Handle null case
+                                Toast.makeText(getContext(), "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                            }
                         }
 
                         @Override
@@ -225,7 +238,18 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
 
             }
         });
-
+        // Add a timeout mechanism (e.g., using a Handler)
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (personDataList.isEmpty()) {
+                    // Timeout reached without data
+                    Toast.makeText(getContext(), "Operation timed out", Toast.LENGTH_SHORT).show();
+                    // Optionally, you can cancel the Firebase request here if it's supported
+                }
+            }
+        }, 10000); // 10 seconds timeout
         return view;
     }
 
@@ -234,17 +258,17 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     public void onItemClicked(PersonData person, int position) {
 
         chatLayout.setVisibility(View.VISIBLE);
+        name.setText(person.getName());
+        otherCode = person.getpCode();
 
         // Ensure position is within bounds
-        if (position >= 0 && position < chatDataList.size()) {
-            QueryDocumentSnapshot chatDocument = chatDataList.get(position);
-            Map<String, Object> documentData = chatDocument.getData();
-            UpdateAdapter(documentData, person);
-            // Set the document ID dynamically
-            String documentId = chatDocument.getId();
+        QueryDocumentSnapshot chatDocument = chatDataList.get(position);
+        Map<String, Object> documentData = chatDocument.getData();
+        UpdateAdapter(documentData, person);
+        // Set the document ID dynamically
+        String documentId = chatDocument.getId();
 
-            RefreshAndLoadChat(documentId, person);
-        }
+        RefreshAndLoadChat(documentId, person);
     }
 
     private void UpdateAdapter(Map<String, Object> documentData, PersonData person) {
