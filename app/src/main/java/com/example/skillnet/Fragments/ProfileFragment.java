@@ -47,7 +47,7 @@ import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvName;
+    private TextView fName;
     private ImageView profileImage;
     private Button btnEditProfile, btnSettings, btnPostProject;
     private ReviewProfileAdapter reviewProfileAdapter;
@@ -65,7 +65,7 @@ public class ProfileFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        tvName = view.findViewById(R.id.name);
+        fName = view.findViewById(R.id.name);
         profileImage = view.findViewById(R.id.profile_picture);
         btnEditProfile = view.findViewById(R.id.btn_edit_profile);
         btnPostProject = view.findViewById(R.id.btn_post_project);
@@ -107,7 +107,7 @@ public class ProfileFragment extends Fragment {
                         String imageUrl = document.getString("imageUrl");
 
                         // Set the retrieved name to the TextView
-                        tvName.setText(name);
+                        fName.setText(name);
 
                         // Load profile picture using Glide
                         if (imageUrl != null && !imageUrl.isEmpty()) {

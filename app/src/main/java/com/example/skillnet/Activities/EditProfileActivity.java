@@ -1,6 +1,7 @@
 package com.example.skillnet.Activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.example.skillnet.Activities.MainActivity;
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -26,6 +26,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class EditProfileActivity extends AppCompatActivity {
 
@@ -37,6 +43,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private DocumentReference userDocRef, userDocRef2;
+    private StorageReference storageRef;
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -48,6 +55,7 @@ public class EditProfileActivity extends AppCompatActivity {
         // Initialize Firebase Auth and Firestore
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference();
 
         etName = findViewById(R.id.et_name);
         etPhone = findViewById(R.id.et_phone);
@@ -169,28 +177,61 @@ public class EditProfileActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
 
-            // You can upload the imageUri to Firebase Storage and then update the Firestore document with the new imageUrl
-            // For simplicity, let's just load the selected image into profileImage using Glide
-            Glide.with(this)
-                    .load(imageUri)
-                    .placeholder(R.drawable.prof_placeholder)
-                    .error(R.drawable.profile)
-                    .into(profileImage);
+            // Compress the image
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos); // Adjust compression level as needed
+                byte[] imageData = baos.toByteArray();
 
-            // Update imageUrl in Firestore document
-            userDocRef2.update("imageUrl", imageUri.toString())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(EditProfileActivity.this, "Profile picture updated", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(EditProfileActivity.this, "Failed to update profile picture", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                // Define the storage reference
+                StorageReference imageRef = storageRef.child("profile_images/" + mAuth.getCurrentUser().getUid() + ".jpg");
+
+                // Upload the image to Firebase Storage
+                UploadTask uploadTask = imageRef.putBytes(imageData);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get the download URL
+                        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadUrl = uri.toString();
+
+                                // Load the image using Glide
+                                Glide.with(EditProfileActivity.this)
+                                        .load(downloadUrl)
+                                        .placeholder(R.drawable.prof_placeholder)
+                                        .error(R.drawable.profile)
+                                        .into(profileImage);
+
+                                // Update the imageUrl field in Firestore
+                                userDocRef2.update("imageUrl", downloadUrl)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(EditProfileActivity.this, "Profile picture updated", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(EditProfileActivity.this, "Failed to update profile picture", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to compress image", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
