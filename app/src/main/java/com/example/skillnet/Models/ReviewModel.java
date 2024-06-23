@@ -7,19 +7,22 @@ public class ReviewModel {
     private String imageUrl;
     private int stars;
     private String title;
-    private String date;
+    private String dateTime;
+    private boolean review;
 
     public ReviewModel() {
     }
 
     // Constructor
-    public ReviewModel(String categoryCode, String clientCode, String description, String imageUrl, int stars, String title, String date) {
+    public ReviewModel(String categoryCode, String clientCode, String description, String imageUrl, int stars, String title, String dateTime, boolean review) {
         this.categoryCode = categoryCode;
         this.clientCode = clientCode;
         this.description = description;
         this.imageUrl = imageUrl;
         this.stars = stars;
         this.title = title;
+        this.dateTime = dateTime;
+        this.review = review;
     }
 
     public void setCategoryCode(String categoryCode) {
@@ -46,12 +49,20 @@ public class ReviewModel {
         this.title = title;
     }
 
-    public String getDate() {
-        return date;
+    public String getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public boolean isReview() {
+        return review;
+    }
+
+    public void setReview(boolean review) {
+        this.review = review;
     }
 
     // Getters

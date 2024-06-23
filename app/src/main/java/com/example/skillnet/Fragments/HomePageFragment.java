@@ -2,12 +2,14 @@ package com.example.skillnet.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.skillnet.Activities.MainActivity;
 import com.example.skillnet.Adapters.CategoryAdapter;
 import com.example.skillnet.Adapters.CategoryDataAdapter;
 import com.example.skillnet.Adapters.PostAdapter;
@@ -26,7 +29,11 @@ import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -40,6 +47,15 @@ public class HomePageFragment extends Fragment {
     private CategoryDataAdapter categoryDataAdapter;
     private Context context;
     private TextView feeds;
+    private static final String TAG = "Home Page Fragment";
+    private static final int MAX_RETRIES = 10;
+    private static final long RETRY_INTERVAL_MS = 1000; // 1 second
+    private int retryCount = 0;
+    private Handler handler;
+    private FirebaseFirestore fStore;
+    Firebase firebase = new Firebase();
+    private boolean workerUpdated = false;
+
 
     @Nullable
     @Override
@@ -47,9 +63,10 @@ public class HomePageFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        Firebase firebase = new Firebase();
         context = getActivity().getApplicationContext();
         feeds = view.findViewById(R.id.feeds);
+        handler = new Handler();
+        fStore = FirebaseFirestore.getInstance();
 
         // Initialize the RecyclerView
         recyclerView1 = view.findViewById(R.id.recycler_view);
@@ -74,11 +91,14 @@ public class HomePageFragment extends Fragment {
         GlobalVariables.categoriesList.clear();
         GlobalVariables.postList.clear();
 
+        retryGetUserCode();
+
         firebase.getAllUsers(new FirebaseCallback<PersonData>() {
             @Override
             public void onCallback(List<PersonData> list) {
                 GlobalVariables.personDataList = list;
-                checkDataReady();
+                if(workerUpdated)
+                    checkDataReady();
             }
 
             @Override
@@ -96,7 +116,8 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onCallback(List<Categories> list) {
                 GlobalVariables.categoriesList = list;
-                checkDataReady();
+                if(workerUpdated)
+                    checkDataReady();
             }
 
             @Override
@@ -114,7 +135,8 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onCallback(List<Post> list) {
                 GlobalVariables.postList = list;
-                checkDataReady();
+                if(workerUpdated)
+                    checkDataReady();
             }
 
             @Override
@@ -168,5 +190,63 @@ public class HomePageFragment extends Fragment {
         if (categoryAdapter != null) categoryAdapter.notifyDataSetChanged();
         if (postAdapter != null) postAdapter.notifyDataSetChanged();
         if (categoryDataAdapter != null) categoryDataAdapter.notifyDataSetChanged();
+    }
+    private void retryGetUserCode() {
+        firebase.getUserByEmail(GlobalVariables.email, new FirebaseCallback<QueryDocumentSnapshot>() {
+            @Override
+            public void onCallback(List<QueryDocumentSnapshot> users) {
+                if (!users.isEmpty()) {
+                    QueryDocumentSnapshot user = users.get(0);
+                    GlobalVariables.code = user.getString("user");
+                    DocumentReference documentReference2 = fStore.collection("users").document(GlobalVariables.code);
+                    documentReference2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                GlobalVariables.isWorker = documentSnapshot.getBoolean("isworker");
+                                workerUpdated = true;
+                                checkDataReady();
+                            } else {
+                                // Handle the case where the document does not exist
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@android.support.annotation.NonNull Exception e) {
+                            // Handle any errors
+                        }
+                    });
+
+                    Log.d(TAG, "User code retrieved: " + GlobalVariables.code);
+                } else {
+                    Log.d(TAG, "No users found with the "+ GlobalVariables.email);
+                }
+
+                if (GlobalVariables.code == null || GlobalVariables.code.isEmpty()) {
+                    if (retryCount < MAX_RETRIES) {
+                        retryCount++;
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                retryGetUserCode();
+                            }
+                        }, RETRY_INTERVAL_MS);
+                    } else {
+                        Toast.makeText(context, "Operation timed out", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Operation timed out. GlobalVariables.code: " + GlobalVariables.code);
+                    }
+                }
+            }
+
+            @Override
+            public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+                // Not used
+            }
+
+            @Override
+            public void onSingleCallback(QueryDocumentSnapshot item) {
+                // Not used
+            }
+        });
     }
 }

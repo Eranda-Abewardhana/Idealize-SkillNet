@@ -18,4 +18,5 @@
     <string name="please_create_an_account_to_continue">Please create an account to continue!</string>
     <string name="aaa">Confirm Password</string>
     <string name="aa">Sign Up</string>
+    <string name="project_image">Project Image</string>
 </resources>

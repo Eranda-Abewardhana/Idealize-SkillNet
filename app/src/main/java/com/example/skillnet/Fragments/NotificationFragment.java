@@ -14,10 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.skillnet.Adapters.ReviewAdapter;
 import com.example.skillnet.FirebaseHelper.Firebase;
 import com.example.skillnet.FirebaseHelper.FirebaseCallback;
+import com.example.skillnet.Global_Variables.GlobalVariables;
+import com.example.skillnet.Models.Categories;
+import com.example.skillnet.Models.Post;
 import com.example.skillnet.Models.ReviewModel;
 import com.example.skillnet.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationFragment extends Fragment {
@@ -38,7 +42,29 @@ public class NotificationFragment extends Fragment {
         firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
             public void onCallback(List<ReviewModel> list) {
-                // Set up RecyclerView with the fetched data
+                Categories category = new Categories();
+                for(Post post : GlobalVariables.postList){
+                    ReviewModel reviewModel = new ReviewModel();
+                    reviewModel.setDateTime(post.getDateTime());
+                    reviewModel.setCategoryCode(post.getCategoryCode());
+                    reviewModel.setDescription(post.getDescription());
+                    reviewModel.setTitle(post.getTitle());
+                    reviewModel.setReview(false);
+
+                    if(post.getImageUrl() != null && !post.getImageUrl().equals("")){
+                        reviewModel.setImageUrl(post.getImageUrl());
+                    }
+                    else {
+                        for (Categories categories : GlobalVariables.categoriesList) {
+                            if (post.getCategoryCode().equals(categories.getCode())) {
+                                category = categories;
+                                break;
+                            }
+                        }
+                        reviewModel.setImageUrl(category.getUrl());
+                    }
+                    list.add(reviewModel);
+                }
                 reviewAdapter = new ReviewAdapter(getContext(), list);
                 recyclerView.setAdapter(reviewAdapter);
             }

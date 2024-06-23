@@ -10,12 +10,13 @@ public class Post {
     String dateTime;
     String description;
     String mobileNo;
+    String imageUrl;
 
     // No-argument constructor
     public Post() {
     }
 
-    public Post(String postCode, String userCode, String categoryCode, String title, double price, String location, String dateTime, String description, String mobileNo) {
+    public Post(String postCode, String userCode, String categoryCode, String title, double price, String location, String dateTime, String description, String mobileNo, String imageUrl) {
         this.postCode = postCode;
         this.userCode = userCode;
         this.categoryCode = categoryCode;
@@ -25,6 +26,15 @@ public class Post {
         this.dateTime = dateTime;
         this.description = description;
         this.mobileNo = mobileNo;
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getDescription() {

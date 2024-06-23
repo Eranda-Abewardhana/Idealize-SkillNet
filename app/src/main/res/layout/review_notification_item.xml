@@ -45,6 +45,19 @@
             android:layout_marginStart="10dp"
             android:text="06-12-2024  6.43PM"
             android:textColor="@color/gray" />
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="1"
+            android:layout_marginTop="4dp"
+            android:minHeight="48dp"
+            android:maxHeight="48dp"
+            android:layoutDirection="ltr" />
+
+
     </LinearLayout>
+
 
 </LinearLayout>

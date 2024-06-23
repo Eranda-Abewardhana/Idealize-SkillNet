@@ -29,12 +29,6 @@ import java.util.Map;
 
 public class Firebase {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    QueryDocumentSnapshot user;
-    List<QueryDocumentSnapshot> filteredDocuments = new ArrayList<>();
-    List<PersonData> personDataList = new ArrayList<>();
-    List<Categories> categoriesList = new ArrayList<>();
-    List<Post> postList = new ArrayList<>();
-    private ListenerRegistration chatRoomsListener;
     private ListenerRegistration listenerRegistration;
 
 
