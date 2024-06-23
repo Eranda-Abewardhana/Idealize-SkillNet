@@ -36,7 +36,7 @@
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="@+id/service_image"
                 app:layout_constraintTop_toTopOf="@+id/service_image"
-                app:srcCompat="@drawable/testimg" />
+                app:srcCompat="@drawable/rectangle" />
 
             <TextView
                 android:id="@+id/price"
