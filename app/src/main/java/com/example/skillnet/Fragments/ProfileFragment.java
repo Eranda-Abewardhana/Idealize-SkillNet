@@ -49,7 +49,7 @@ public class ProfileFragment extends Fragment {
 
     private TextView fName;
     private ImageView profileImage;
-    private Button btnEditProfile, btnSettings, btnPostProject;
+    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage ;
     private ReviewProfileAdapter reviewProfileAdapter;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -66,6 +66,7 @@ public class ProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         fName = view.findViewById(R.id.name);
+        btnMessage = view.findViewById(R.id.btn_msg);
         profileImage = view.findViewById(R.id.profile_picture);
         btnEditProfile = view.findViewById(R.id.btn_edit_profile);
         btnPostProject = view.findViewById(R.id.btn_post_project);
@@ -166,7 +167,13 @@ public class ProfileFragment extends Fragment {
         });
 
         // Set OnClickListener for the Settings button
+
         btnSettings.setOnClickListener(v -> {
+            // Launch the SettingsActivity
+            Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(intent);
+        });
+        btnMessage.setOnClickListener(v -> {
             // Launch the SettingsActivity
             Intent intent = new Intent(getActivity(), SettingsActivity.class);
             startActivity(intent);
