@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.skillnet.Activities.MainActivity;
+import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,7 +36,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-    private DocumentReference userDocRef;
+    private DocumentReference userDocRef, userDocRef2;
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -63,7 +64,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
             // Search for the user in users_signup collection using the email as document ID
             userDocRef = db.collection("users_signup").document(email);
-
             // Fetch and set user details from Firestore
             userDocRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -78,13 +78,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
                         // Access the users collection and fetch the document using 'user' as document ID
                         if (user != null) {
-                            DocumentReference userRef = db.collection("users").document(user);
-                            userRef.get().addOnCompleteListener(userTask -> {
+                            userDocRef2 = db.collection("users").document(GlobalVariables.code);
+                            userDocRef2.get().addOnCompleteListener(userTask -> {
                                 if (userTask.isSuccessful()) {
                                     DocumentSnapshot userDoc = userTask.getResult();
                                     if (userDoc.exists()) {
                                         // Get imageUrl from the user document
-                                        String imageUrl = document.getString("imageUrl");
+                                        String imageUrl = userDoc.getString("imageUrl");
                                         if (imageUrl != null && !imageUrl.isEmpty()) {
                                             // Load image using Glide
                                             Glide.with(EditProfileActivity.this)
@@ -178,7 +178,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     .into(profileImage);
 
             // Update imageUrl in Firestore document
-            userDocRef.update("imageUrl", imageUri.toString())
+            userDocRef2.update("imageUrl", imageUri.toString())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {

@@ -40,19 +40,13 @@ import javax.microedition.khronos.opengles.GL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private static final int MAX_RETRIES = 10;
-    private static final long RETRY_INTERVAL_MS = 1000; // 1 second
-
     private TabLayout tabLayout;
     private ViewPager2 viewPager2;
     private FirebaseAuth auth;
     private Button button;
     private FirebaseUser user;
-    private int retryCount = 0;
-    private Handler handler;
+
     private Firebase firebase;
-    private FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         auth = FirebaseAuth.getInstance();
-        handler = new Handler();
         firebase = new Firebase();
         user = auth.getCurrentUser();
 
@@ -87,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        retryGetUserCode();
-
         tabLayout = findViewById(R.id.tab_layout);
         viewPager2 = findViewById(R.id.viewpager);
 
@@ -98,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(new NotificationFragment());
         viewPagerAdapter.addFragment(new ProfileFragment());
         viewPager2.setAdapter(viewPagerAdapter);
-        fStore = FirebaseFirestore.getInstance();
 
         int color = ContextCompat.getColor(this, R.color.lite_black);
 
@@ -124,60 +114,4 @@ public class MainActivity extends AppCompatActivity {
         }).attach();
     }
 
-    private void retryGetUserCode() {
-        firebase.getUserByEmail(GlobalVariables.email, new FirebaseCallback<QueryDocumentSnapshot>() {
-            @Override
-            public void onCallback(List<QueryDocumentSnapshot> users) {
-                if (!users.isEmpty()) {
-                    QueryDocumentSnapshot user = users.get(0);
-                    GlobalVariables.code = user.getString("user");
-                    DocumentReference documentReference2 = fStore.collection("users").document(GlobalVariables.code);
-                    documentReference2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                GlobalVariables.isWorker = documentSnapshot.getBoolean("isworker");
-                            } else {
-                                // Handle the case where the document does not exist
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Handle any errors
-                        }
-                    });
-
-                    Log.d(TAG, "User code retrieved: " + GlobalVariables.code);
-                } else {
-                    Log.d(TAG, "No users found with the "+ GlobalVariables.email);
-                }
-
-                if (GlobalVariables.code == null || GlobalVariables.code.isEmpty()) {
-                    if (retryCount < MAX_RETRIES) {
-                        retryCount++;
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                retryGetUserCode();
-                            }
-                        }, RETRY_INTERVAL_MS);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Operation timed out", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Operation timed out. GlobalVariables.code: " + GlobalVariables.code);
-                    }
-                }
-            }
-
-            @Override
-            public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
-                // Not used
-            }
-
-            @Override
-            public void onSingleCallback(QueryDocumentSnapshot item) {
-                // Not used
-            }
-        });
-    }
 }

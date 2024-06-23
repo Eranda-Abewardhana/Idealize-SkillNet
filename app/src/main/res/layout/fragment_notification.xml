@@ -40,10 +40,10 @@
         android:padding="10dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:textSize="16dp"
+        android:textSize="24dp"
         android:layout_marginStart="10dp"
         android:textColor="@color/dark_blue"
-        android:text="Review Notifications" />
+        android:text="Notifications" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
