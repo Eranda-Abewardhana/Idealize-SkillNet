@@ -9,14 +9,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.example.skillnet.Activities.LoginActivity;
+import com.example.skillnet.Activities.MainActivity;
+import com.example.skillnet.FirebaseHelper.Firebase;
+import com.example.skillnet.FirebaseHelper.FirebaseCallback;
 import com.example.skillnet.Global_Variables.GlobalVariables;
+import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.List;
 
 public class SettingFragment extends Fragment {
 
@@ -25,27 +36,10 @@ public class SettingFragment extends Fragment {
     private LinearLayout addAccountRow;
     private Switch switchAccountRow;
     private LinearLayout logOutRow;
-
-    public SettingFragment() {
-        // Required empty public constructor
-    }
-
-    public static SettingFragment newInstance(String param1, String param2) {
-        SettingFragment fragment = new SettingFragment();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            // Handle fragment arguments if needed
-        }
-    }
+    private GlobalVariables globalVariables;
+    private Firebase firebase;
+    private String code = "";
+    private FirebaseAuth auth ;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,23 +56,54 @@ public class SettingFragment extends Fragment {
         addAccountRow = view.findViewById(R.id.add);
         switchAccountRow = view.findViewById(R.id.switch1);
         logOutRow = view.findViewById(R.id.logout);
+        firebase = new Firebase();
+        auth =  FirebaseAuth.getInstance();
+
+        globalVariables = new ViewModelProvider(requireActivity()).get(GlobalVariables.class);
+
+        // Set initial state of switch based on isWorker value
+        switchAccountRow.setChecked(GlobalVariables.isWorker);
 
         // Set up any necessary listeners and handlers
         backButton.setOnClickListener(v -> {
-            // Handle back button click
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
         });
 
         addAccountRow.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
             GlobalVariables.addAccount = true;
+        });
+
+        switchAccountRow.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Update isWorker state in GlobalVariables
+
+            // Display toast message based on state change
+            String message = isChecked ? "Worker mode Turned On" : "Worker mode Turned Off";
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+
+            // Revert to default mood if isChecked is false
+            GlobalVariables.isWorker = !GlobalVariables.isWorker;
+            firebase.updateDocumentValue("users", GlobalVariables.code, "isworker", GlobalVariables.isWorker, new FirebaseCallback() {
+                @Override
+                public void onCallback(List list) {
+
+                }
+
+                @Override
+                public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+                }
+
+                @Override
+                public void onSingleCallback(Object item) {
+
+                }
+            });
 
         });
 
-        switchAccountRow.setOnClickListener(v -> {
-            // Handle switch account row click
-            switchAccount();
-        });
 
         logOutRow.setOnClickListener(v -> {
             // Handle logout row click
@@ -87,24 +112,6 @@ public class SettingFragment extends Fragment {
             startActivity(intent);
             getActivity().finish();
         });
-    }
 
-    private void switchAccount() {
-        // Sign out the current user
-        FirebaseAuth.getInstance().signOut();
-
-        // Toggle the account type
-        if (GlobalVariables.isWorker) {
-            GlobalVariables.isWorker = false;
-
-        } else {
-            GlobalVariables.isWorker = true;
-
-        }
-
-        // Start LoginActivity to sign in with the new account type
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
-        startActivity(intent);
-        getActivity().finish();
     }
 }

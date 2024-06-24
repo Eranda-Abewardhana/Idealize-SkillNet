@@ -175,9 +175,6 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                                 String otherUserCode = chat.getId().replace(code,"").replace("-","");
                                 otherUserCodes.add(otherUserCode);
                             }
-
-                            // Fetch all users and filter by chat codes
-
                         }
 
                         @Override

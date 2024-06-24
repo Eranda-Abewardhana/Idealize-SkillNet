@@ -129,7 +129,8 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:passwordToggleEnabled="true">
+                    app:passwordToggleEnabled="true"
+                    android:textColorHint="@color/gray">
                     <EditText
                         android:id="@+id/password"
                         android:layout_width="match_parent"
@@ -171,6 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:passwordToggleEnabled="true"
+                    android:textColorHint="@color/gray"
                     >
 
                     <EditText
@@ -184,6 +186,7 @@
                         android:padding="10dp"
                         android:textColor="@color/lite_black"
                         android:textColorHint="@color/gray" />
+
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 

@@ -3,6 +3,7 @@ package com.example.skillnet.FirebaseHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.skillnet.Models.ReviewModel;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.example.skillnet.Global_Variables.GlobalVariables;
@@ -21,18 +22,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Firebase {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    QueryDocumentSnapshot user;
-    List<QueryDocumentSnapshot> filteredDocuments = new ArrayList<>();
-    List<PersonData> personDataList = new ArrayList<>();
-    List<Categories> categoriesList = new ArrayList<>();
-    List<Post> postList = new ArrayList<>();
-    private ListenerRegistration chatRoomsListener;
     private ListenerRegistration listenerRegistration;
 
 
@@ -45,7 +41,8 @@ public class Firebase {
                         List<QueryDocumentSnapshot> users = new ArrayList<>();
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("email").equals(email)) {
+                                String userData = document.getString("email").toLowerCase();
+                                if (userData.equals(email.toLowerCase())) {
                                     users.add(document);
                                     Log.d("Firestore", document.getId() + " => " + document.getData());
                                 }
@@ -55,9 +52,29 @@ public class Firebase {
                         }
                         callback.onCallback(users);
                     }
+
                 });
     }
+    public void updateDocumentValue(String collectionName, String documentName, String key, Object value, final FirebaseCallback callback) {
+        DocumentReference docRef = db.collection(collectionName).document(documentName);
 
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(key, value);
+
+        docRef.update(updates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("Firestore", "DocumentSnapshot successfully updated!");
+
+                        } else {
+                            Log.w("Firestore", "Error updating document", task.getException());
+
+                        }
+                    }
+                });
+    }
     public void getChatsByCode(String code, final FirebaseCallback<QueryDocumentSnapshot> callback) {
         db.collection("chat_rooms")
                 .get()
@@ -158,6 +175,27 @@ public class Firebase {
             listenerRegistration.remove();
         }
     }
+    public void getAllUserReviews(final FirebaseCallback<ReviewModel> callback) {
+        db.collection("reviews").document(GlobalVariables.code).collection("worker_reviews")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@androidx.annotation.NonNull Task<QuerySnapshot> task) {
+                        List<ReviewModel> reviewModels = new ArrayList<>();
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ReviewModel reviewModel = document.toObject(ReviewModel.class);
+                                reviewModels.add(reviewModel);
+                            }
+                            callback.onCallback(reviewModels);
+                        } else {
+                            Log.w("Firestore", "Error getting documents.", task.getException());
+                            callback.onCallback(Collections.emptyList()); // or handle the error in callback
+                        }
+                    }
+                });
+    }
+
 
     public void getAllUsers(final FirebaseCallback<PersonData> callback) {
         db.collection("users")

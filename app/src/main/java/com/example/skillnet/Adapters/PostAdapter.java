@@ -18,8 +18,14 @@ import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private List<Post> postList = new ArrayList<>();
@@ -32,6 +38,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.categoriesList = categoriesList;
         this.personDataList = personDataList;
         this.context = context;
+        sortPostsByDatetime();
+    }
+
+    private void sortPostsByDatetime() {
+        Collections.sort(postList, new Comparator<Post>() {
+            @Override
+            public int compare(Post o1, Post o2) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ssa", Locale.getDefault());
+                try {
+                    Date date1 = sdf.parse(o1.getDateTime());
+                    Date date2 = sdf.parse(o2.getDateTime());
+                    return date2.compareTo(date1); // Sort in descending order
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
     }
 
     @NonNull
@@ -47,13 +71,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Categories category = new Categories();
         PersonData personData = new PersonData();
 
-        for(Categories categories : categoriesList){
-            if(post.getCategoryCode().equals(categories.getCode())){
+        for (Categories categories : categoriesList) {
+            if (post.getCategoryCode().equals(categories.getCode())) {
                 category = categories;
             }
         }
-        for(PersonData person : personDataList){
-            if(post.getUserCode().equals(person.getpCode())){
+        for (PersonData person : personDataList) {
+            if (post.getUserCode().equals(person.getpCode())) {
                 personData = person;
             }
         }
@@ -62,13 +86,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.categoryName.setText(category.getName());
         holder.location.setText(post.getLocation());
         holder.title.setText(post.getTitle());
-        holder.price.setText("Rs " + String.valueOf(post.getPrice()));
+        holder.price.setText("Rs " + post.getPrice());
         holder.category2.setText(category.getName());
         holder.datetime.setText(post.getDateTime());
         holder.contact.setText(post.getMobileNo());
         holder.description.setText(post.getDescription());
         Picasso.get().load(personData.getImageUrl()).into(holder.profileImage);
-        Picasso.get().load(category.getUrl()).into(holder.image);
+        if(post.getImageUrl() != null && !post.getImageUrl().equals("")){
+            Picasso.get().load(post.getImageUrl()).into(holder.image);
+        }
+        else {
+            Picasso.get().load(category.getUrl()).into(holder.image);
+        }
 
         // Set the see more button action
         holder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
@@ -85,8 +114,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             }
         });
-
-
     }
 
     @Override
@@ -116,5 +143,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             contact = itemView.findViewById(R.id.contact);
             see_more = itemView.findViewById(R.id.seemoredetails);
         }
+    }
+
+    public void setPostList(List<Post> newPostList) {
+        this.postList = newPostList;
+        sortPostsByDatetime();
+        notifyDataSetChanged();
     }
 }
