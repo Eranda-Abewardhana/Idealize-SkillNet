@@ -8,6 +8,7 @@
     android:background="@drawable/background2"
     tools:context=".Activities.MainActivity">
 
+
     <!-- Back Button -->
     <ImageView
         android:id="@+id/imageView2"
