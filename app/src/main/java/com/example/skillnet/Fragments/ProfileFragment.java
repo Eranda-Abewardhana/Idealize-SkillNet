@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
-
+// background thread
     private TextView fName;
     private ImageView profileImage;
     private Button btnEditProfile, btnSettings, btnPostProject, btnMessage ;
@@ -174,10 +174,16 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
         btnMessage.setOnClickListener(v -> {
-            // Launch the SettingsActivity
-            Intent intent = new Intent(getActivity(), SettingsActivity.class);
-            startActivity(intent);
+            // Create an instance of the fragment you want to navigate to
+            ChatFragment chatFragment = new ChatFragment();
+
+            // Perform the fragment transaction
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, chatFragment)
+                    .addToBackStack(null)  // Optional: adds the transaction to the back stack so the user can navigate back
+                    .commit();
         });
+
     }
     private void fetchCompletedProjects() {
         CollectionReference projectsRef = db.collection("projects")

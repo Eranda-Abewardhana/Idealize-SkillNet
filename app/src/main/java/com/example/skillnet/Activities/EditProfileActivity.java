@@ -10,11 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.example.skillnet.Global_Variables.GlobalVariables;
@@ -39,6 +41,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private Button btnSave;
     private ImageButton btnBack, btnEditProfilePic;
     private ImageView profileImage;
+    private CardView serviceDetailsCard;
+    private LinearLayout addPictures; // Changed from ConstraintSet.Layout to LinearLayout
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -64,6 +68,8 @@ public class EditProfileActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
         profileImage = findViewById(R.id.profile_image);
         btnEditProfilePic = findViewById(R.id.btn_edit_profile_image);
+        serviceDetailsCard = findViewById(R.id.service_details_card);
+        addPictures = findViewById(R.id.add_pictures); // Initialize addPictures
 
         // Get the current user's email
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -103,6 +109,16 @@ public class EditProfileActivity extends AppCompatActivity {
                                         } else {
                                             // Handle case where imageUrl is null or empty
                                             profileImage.setImageResource(R.drawable.profile);
+                                        }
+
+                                        // Check if the user is a worker
+                                        boolean isWorker = userDoc.getBoolean("isworker");
+                                        if (isWorker) {
+                                            serviceDetailsCard.setVisibility(View.VISIBLE);
+                                            addPictures.setVisibility(View.VISIBLE);
+                                        } else {
+                                            serviceDetailsCard.setVisibility(View.GONE);
+                                            addPictures.setVisibility(View.GONE);
                                         }
                                     } else {
                                         // Handle case where user document doesn't exist
@@ -153,8 +169,10 @@ public class EditProfileActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate back to previous activity (MainActivity in this example)
+                // Create an intent to navigate back to MainActivity
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                // Add an extra indicating that we want to navigate to ProfileFragment
+                intent.putExtra("navigateToProfile", true);
                 startActivity(intent);
             }
         });

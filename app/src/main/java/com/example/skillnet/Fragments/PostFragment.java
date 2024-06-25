@@ -74,7 +74,7 @@ public class PostFragment extends Fragment {
                 String topic = topicEditText.getText().toString();
                 String description = descriptionEditText.getText().toString();
                 String location = locationEditText.getText().toString();
-                String price = priceEditText.getText().toString();
+                double price = Double.parseDouble(priceEditText.getText().toString());
 
                 // Create a map to store data
                 Map<String, Object> post = new HashMap<>();
