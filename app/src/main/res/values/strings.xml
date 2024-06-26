@@ -19,4 +19,5 @@
     <string name="aaa">Confirm Password</string>
     <string name="aa">Sign Up</string>
     <string name="project_image">Project Image</string>
+    <string name="rating_bar_description">review</string>
 </resources>
