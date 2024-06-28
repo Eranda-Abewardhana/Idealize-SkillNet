@@ -1,6 +1,7 @@
 package com.example.skillnet.Fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,14 +23,13 @@ import com.bumptech.glide.Glide;
 import com.example.skillnet.Activities.SettingsActivity;
 import com.example.skillnet.Activities.EditProfileActivity;
 import com.example.skillnet.Adapters.GridAdapter;
-import com.example.skillnet.Adapters.ReviewAdapter;
 import com.example.skillnet.Adapters.ReviewProfileAdapter;
 import com.example.skillnet.Adapters.ServiceGridAdapter;
 import com.example.skillnet.FirebaseHelper.Firebase;
 import com.example.skillnet.FirebaseHelper.FirebaseCallback;
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
-import com.example.skillnet.Models.Post;
+import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Project;
 import com.example.skillnet.Models.ReviewModel;
 import com.example.skillnet.R;
@@ -39,33 +39,42 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
-// background thread
-    private TextView fName;
+    private TextView fName, profession, location, bio, phone, webSite;
     private ImageView profileImage;
-    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage ;
+    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview;
     private ReviewProfileAdapter reviewProfileAdapter;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
-    private DocumentReference userDocRef;
+    private DocumentReference userDocRef, userDocRef2;
     private RecyclerView completedProjectsRecyclerView, servicesRecyclerView, recyclerView;
+    private ImageView instagramImageView, facebookImageView, twitterImageView, linkedinImageView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        initializeViews(view);
+        setRecyclerViewLayoutManagers();
+
+        return view;
+    }
+
+    private void initializeViews(View view) {
         fName = view.findViewById(R.id.name);
+        profession = view.findViewById(R.id.profession);
+        location = view.findViewById(R.id.location);
+        bio = view.findViewById(R.id.biodata);
+        webSite = view.findViewById(R.id.link);
+        phone = view.findViewById(R.id.phone);
         btnMessage = view.findViewById(R.id.btn_msg);
         profileImage = view.findViewById(R.id.profile_picture);
         btnEditProfile = view.findViewById(R.id.btn_edit_profile);
@@ -74,79 +83,118 @@ public class ProfileFragment extends Fragment {
         completedProjectsRecyclerView = view.findViewById(R.id.completed_projects_recycler_view);
         servicesRecyclerView = view.findViewById(R.id.service_projects_recycler_view);
         recyclerView = view.findViewById(R.id.review_recycler_view);
+        btnReview = view.findViewById(R.id.btn_review);
+        linkedinImageView = view.findViewById(R.id.linkedin);
+        twitterImageView = view.findViewById(R.id.twitter);
+        facebookImageView = view.findViewById(R.id.facebook);
+        instagramImageView = view.findViewById(R.id.instagram);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        return view;
+    }
+
+    private void setRecyclerViewLayoutManagers() {
+        completedProjectsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        servicesRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Get the current user's email
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Firebase firebase = new Firebase();
 
-        // Set up the RecyclerView with GridLayoutManager
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3); // 3 columns
-        GridLayoutManager gridLayoutManager2 = new GridLayoutManager(getContext(), 3); // 3 columns
-        completedProjectsRecyclerView.setLayoutManager(gridLayoutManager);
-        servicesRecyclerView.setLayoutManager(gridLayoutManager2);
-
         if (currentUser != null) {
             String email = currentUser.getEmail();
-
-            // Search for the user in users_signup collection using the email as document ID
             userDocRef = db.collection("users").document(GlobalVariables.code);
+            userDocRef2 = db.collection("users_signup").document(email);
 
-            // Fetch user details from Firestore
             userDocRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        // Retrieve name and profile picture URL from Firestore
-                        String name = document.getString("name");
-                        String imageUrl = document.getString("imageUrl");
-
-                        // Set the retrieved name to the TextView
-                        fName.setText(name);
-
-                        // Load profile picture using Glide
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            Glide.with(requireContext())
-                                    .load(imageUrl)
-                                    .placeholder(R.drawable.profile)
-                                    .error(R.drawable.profile)
-                                    .into(profileImage);
-                        }
-
-                        else {
-                            // Handle case where profile image URL is null or empty
-                            profileImage.setImageResource(R.drawable.profile);
-                        }
-                        // Fetch completed projects
+                        GlobalVariables.person = document.toObject(PersonData.class);
+                        setUserData(GlobalVariables.person);
                         fetchCompletedProjects();
                     } else {
-                        Toast.makeText(requireContext(), "Document does not exist", Toast.LENGTH_SHORT).show();
+                        showToast("Document does not exist");
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Failed to fetch document", Toast.LENGTH_SHORT).show();
+                    showToast("Failed to fetch document");
                 }
             });
-        }
-        btnPostProject.setOnClickListener(v -> {
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, new PostFragment());
-            transaction.addToBackStack(null);
-            transaction.commit();
-        });
+            userDocRef2.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
+                    phone.setText(GlobalVariables.person.getPhone());
+                }
+            });
 
-        // Set OnClickListener for the Edit Profile button
-        btnEditProfile.setOnClickListener(v -> {
-            // Launch the EditProfileActivity
-            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
-            startActivity(intent);
+        }
+
+        setButtonListeners(firebase);
+    }
+
+    private void setUserData(PersonData person) {
+        fName.setText(person.getName());
+        location.setText(person.getLocation());
+        profession.setText(getUserCategories(person.getpCode()));
+        bio.setText(person.getBio());
+        webSite.setText(person.getWebsite());
+        setProfileImage(person.getImageUrl());
+        setSocialMediaListeners(person);
+    }
+
+    private String getUserCategories(String pCode) {
+        StringBuilder category = new StringBuilder();
+        for (Categories categories : GlobalVariables.categoriesList) {
+            for (String personData : categories.getPersonDataList()) {
+                if (personData.equals(pCode)) {
+                    category.append("\n").append(categories.getName());
+                    break;
+                }
+            }
+        }
+        return category.toString();
+    }
+
+    private void setProfileImage(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(requireContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.profile)
+                    .error(R.drawable.profile)
+                    .into(profileImage);
+        } else {
+            profileImage.setImageResource(R.drawable.profile);
+        }
+    }
+
+    private void setSocialMediaListeners(PersonData person) {
+        setSocialMediaClickListener(linkedinImageView, person.getLinkedin());
+        setSocialMediaClickListener(twitterImageView, person.getTwitter());
+        setSocialMediaClickListener(facebookImageView, person.getFb());
+        setSocialMediaClickListener(instagramImageView, person.getInsta());
+        setSocialMediaClickListener(webSite, person.getWebsite());
+    }
+
+    private void setSocialMediaClickListener(View view, String url) {
+        view.setOnClickListener(v -> {
+            if (url != null && !url.isEmpty()) {
+                openUrl(url);
+            } else {
+                showToast("No URL provided");
+            }
         });
-        // Fetch reviews from Firebase
+    }
+
+    private void setButtonListeners(Firebase firebase) {
+        btnPostProject.setOnClickListener(v -> navigateToFragment(new PostFragment()));
+        btnReview.setOnClickListener(v -> navigateToFragment(new ReviewFragment()));
+        btnEditProfile.setOnClickListener(v -> startActivity(new Intent(getActivity(), EditProfileActivity.class)));
+        btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
+        btnMessage.setOnClickListener(v -> navigateToFragment(new ChatFragment()));
+
         firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
             public void onCallback(List<ReviewModel> list) {
@@ -157,38 +205,30 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
-                // Handle document snapshot callback if needed
             }
 
             @Override
             public void onSingleCallback(ReviewModel item) {
-                // Handle single item callback if needed
             }
         });
-
-        // Set OnClickListener for the Settings button
-
-        btnSettings.setOnClickListener(v -> {
-            // Launch the SettingsActivity
-            Intent intent = new Intent(getActivity(), SettingsActivity.class);
-            startActivity(intent);
-        });
-        btnMessage.setOnClickListener(v -> {
-            // Create an instance of the fragment you want to navigate to
-            ChatFragment chatFragment = new ChatFragment();
-
-            // Perform the fragment transaction
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, chatFragment)
-                    .addToBackStack(null)  // Optional: adds the transaction to the back stack so the user can navigate back
-                    .commit();
-        });
-
     }
+
+    private void navigateToFragment(Fragment fragment) {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     private void fetchCompletedProjects() {
+        fetchProjects("worker's_projects", completedProjectsRecyclerView, new GridAdapter(getContext(), new ArrayList<>()));
+        fetchProjects("worker's_services", servicesRecyclerView, new ServiceGridAdapter(getContext(), new ArrayList<>()));
+    }
+
+    private void fetchProjects(String collection, RecyclerView recyclerView, RecyclerView.Adapter adapter) {
         CollectionReference projectsRef = db.collection("projects")
                 .document(GlobalVariables.code)
-                .collection("worker's_projects");
+                .collection(collection);
 
         projectsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -196,46 +236,35 @@ public class ProfileFragment extends Fragment {
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
                     List<Project> projectList = new ArrayList<>();
                     for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        Project project = document.toObject(Project.class);
-                        projectList.add(project);
+                        projectList.add(document.toObject(Project.class));
                     }
-
-                    // Set up the adapter with the fetched projects
-                    GridAdapter adapter1 = new GridAdapter(getContext(), projectList);
-                    completedProjectsRecyclerView.setAdapter(adapter1);
-                    adapter1.notifyDataSetChanged();
+                    updateRecyclerView(recyclerView, adapter, projectList);
                 } else {
-                    Toast.makeText(requireContext(), "No projects found for this user", Toast.LENGTH_SHORT).show();
+                    showToast("No projects found for this user");
                 }
             } else {
-                Toast.makeText(requireContext(), "Failed to fetch projects", Toast.LENGTH_SHORT).show();
-            }
-        });
-        CollectionReference projectsRef2 = db.collection("projects")
-                .document(GlobalVariables.code)
-                .collection("worker's_services");
-
-        projectsRef2.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                    List<Project> projectList = new ArrayList<>();
-                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        Project project = document.toObject(Project.class);
-                        projectList.add(project);
-                    }
-
-                    // Set up the adapter with the fetched projects
-                    ServiceGridAdapter adapter = new ServiceGridAdapter(getContext(), projectList);
-                    servicesRecyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(requireContext(), "No projects found for this user", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(requireContext(), "Failed to fetch projects", Toast.LENGTH_SHORT).show();
+                showToast("Failed to fetch projects");
             }
         });
     }
 
+    private void updateRecyclerView(RecyclerView recyclerView, RecyclerView.Adapter adapter, List<Project> projectList) {
+        if (adapter instanceof GridAdapter) {
+            ((GridAdapter) adapter).updateProjects(projectList);
+        } else if (adapter instanceof ServiceGridAdapter) {
+            ((ServiceGridAdapter) adapter).updateProjects(projectList);
+        }
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void openUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
 }

@@ -83,6 +83,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
 
         // Bind the data to the views
+        holder.name.setText(personData.getName());
         holder.categoryName.setText(category.getName());
         holder.location.setText(post.getLocation());
         holder.title.setText(post.getTitle());
@@ -122,7 +123,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView categoryName, location, title, price, category2, datetime, description, contact;
+        TextView categoryName, location, title, price, category2, datetime, description, contact, name;
         ImageView profileImage, image;
         Button seeMoreButton;
         LinearLayout see_more;
@@ -133,6 +134,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             profileImage = itemView.findViewById(R.id.profile_image);
             categoryName = itemView.findViewById(R.id.category1);
             location = itemView.findViewById(R.id.location);
+            name = itemView.findViewById(R.id.name);
             title = itemView.findViewById(R.id.title);
             price = itemView.findViewById(R.id.price);
             category2 = itemView.findViewById(R.id.category2);

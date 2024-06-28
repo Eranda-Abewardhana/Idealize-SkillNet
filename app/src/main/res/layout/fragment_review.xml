@@ -39,11 +39,13 @@
         android:id="@+id/worker_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:layout_marginStart="42dp"
         android:layout_marginTop="23dp"
         android:layout_marginEnd="29dp"
         android:background="@drawable/rounded_edit_text"
         android:hint="Worker's name:"
+        android:textColorHint="@color/gray"
         android:padding="16dp"
         android:inputType="textPersonName"
         android:importantForAccessibility="yes"
@@ -57,6 +59,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:layout_marginTop="16dp"
         android:text="Score:"
         android:textSize="17sp"
@@ -65,26 +68,29 @@
 
     <!-- RatingBar -->
 
-    <!-- Review EditText -->
     <RatingBar
         android:id="@+id/rating_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:contentDescription="@string/rating_bar_description"
         android:numStars="5"
         android:stepSize="1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.245"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        android:contentDescription="@string/rating_bar_description"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+
 
     <EditText
         android:id="@+id/review_text"
-        android:layout_width="340sp"
+        android:layout_width="match_parent"
+        android:layout_margin="20dp"
         android:layout_height="200sp"
         android:layout_marginTop="7dp"
         android:background="@drawable/rounded_edit_text"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         android:gravity="top"
         android:hint="Review:"
         android:minHeight="100dp"

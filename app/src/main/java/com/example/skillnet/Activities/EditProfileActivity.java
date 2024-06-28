@@ -1,18 +1,21 @@
 package com.example.skillnet.Activities;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,172 +24,210 @@ import androidx.cardview.widget.CardView;
 import com.bumptech.glide.Glide;
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private EditText etName, etPhone, etEmail;
-    private Button btnSave;
-    private ImageButton btnBack, btnEditProfilePic;
-    private ImageView profileImage;
-    private CardView serviceDetailsCard;
-    private LinearLayout addPictures; // Changed from ConstraintSet.Layout to LinearLayout
-
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-    private DocumentReference userDocRef, userDocRef2;
-    private StorageReference storageRef;
-
     private static final int PICK_IMAGE_REQUEST = 1;
+
+    private EditText etName, etPhone, etFb, etInsta, etLinkedin, etTwitter, etLocation, bio, etPassword;
+    private TextView etEmail, etNewPassword;
+    private Button btnSave;
+    private ImageButton btnBack, btnEditProfilePic, btnAddPicture;
+    private ImageView editName, editPassword, editBio, editNumber, editEmail, editFb, editInsta, editLinkedin, editTwitter, editLocation;
+    private de.hdodenhof.circleimageview.CircleImageView profileImage;
+    private LinearLayout addPictures;
+    private CardView serviceDetailsCard;
+    private FirebaseAuth mAuth;
+    private StorageReference storageRef;
+    private LinearLayout newPassword;
+    private FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        // Initialize Firebase Auth and Firestore
+        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference();
+        fStore = FirebaseFirestore.getInstance();
 
+        // Initialize Views
+        newPassword = findViewById(R.id.newPass);
         etName = findViewById(R.id.et_name);
         etPhone = findViewById(R.id.et_phone);
         etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
+        etNewPassword = findViewById(R.id.et_new_password);
+        etFb = findViewById(R.id.et_fb);
+        etInsta = findViewById(R.id.et_insta);
+        etLinkedin = findViewById(R.id.et_linkedin);
+        etTwitter = findViewById(R.id.et_twitter);
+        etLocation = findViewById(R.id.et_location);
+        bio = findViewById(R.id.bio);
         btnSave = findViewById(R.id.btn_save);
         btnBack = findViewById(R.id.btn_back);
         profileImage = findViewById(R.id.profile_image);
         btnEditProfilePic = findViewById(R.id.btn_edit_profile_image);
         serviceDetailsCard = findViewById(R.id.service_details_card);
-        addPictures = findViewById(R.id.add_pictures); // Initialize addPictures
+        addPictures = findViewById(R.id.add_pictures);
+        btnAddPicture = findViewById(R.id.btn_add_picture);
+        editName = findViewById(R.id.edit_name);
+        editPassword = findViewById(R.id.edit_password);
+        editBio = findViewById(R.id.edit_bio);
+        editNumber = findViewById(R.id.edit_number);
+        editEmail = findViewById(R.id.edit_email);
+        editFb = findViewById(R.id.edit_fb);
+        editInsta = findViewById(R.id.edit_insta);
+        editLinkedin = findViewById(R.id.edit_linkedin);
+        editTwitter = findViewById(R.id.edit_twitter);
+        editLocation = findViewById(R.id.edit_location);
 
-        // Get the current user's email
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String email = currentUser.getEmail();
+        // Use data from GlobalVariables
+        etName.setText(GlobalVariables.person.getName());
+        etPhone.setText(GlobalVariables.person.getPhone());
+        etEmail.setText(mAuth.getCurrentUser().getEmail());
+        bio.setText(GlobalVariables.person.getBio());
+        etFb.setText(GlobalVariables.person.getFb());
+        etInsta.setText(GlobalVariables.person.getInsta());
+        etLinkedin.setText(GlobalVariables.person.getLinkedin());
+        etLocation.setText(GlobalVariables.person.getLocation());
+        etTwitter.setText(GlobalVariables.person.getTwitter());
 
-            // Search for the user in users_signup collection using the email as document ID
-            userDocRef = db.collection("users_signup").document(email);
-            // Fetch and set user details from Firestore
-            userDocRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        etName.setText(document.getString("fName"));
-                        etPhone.setText(document.getString("PhoneNumber"));
-                        etEmail.setText(document.getString("email"));
-
-                        // Get the user field value
-                        String user = document.getString("user");
-
-                        // Access the users collection and fetch the document using 'user' as document ID
-                        if (user != null) {
-                            userDocRef2 = db.collection("users").document(GlobalVariables.code);
-                            userDocRef2.get().addOnCompleteListener(userTask -> {
-                                if (userTask.isSuccessful()) {
-                                    DocumentSnapshot userDoc = userTask.getResult();
-                                    if (userDoc.exists()) {
-                                        // Get imageUrl from the user document
-                                        String imageUrl = userDoc.getString("imageUrl");
-                                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                                            // Load image using Glide
-                                            Glide.with(EditProfileActivity.this)
-                                                    .load(imageUrl) // Image URL
-                                                    .placeholder(R.drawable.prof_placeholder) // Placeholder image
-                                                    .error(R.drawable.profile) // Error image if loading fails
-                                                    .into(profileImage); // ImageView to load into
-                                        } else {
-                                            // Handle case where imageUrl is null or empty
-                                            profileImage.setImageResource(R.drawable.profile);
-                                        }
-
-                                        // Check if the user is a worker
-                                        boolean isWorker = userDoc.getBoolean("isworker");
-                                        if (isWorker) {
-                                            serviceDetailsCard.setVisibility(View.VISIBLE);
-                                            addPictures.setVisibility(View.VISIBLE);
-                                        } else {
-                                            serviceDetailsCard.setVisibility(View.GONE);
-                                            addPictures.setVisibility(View.GONE);
-                                        }
-                                    } else {
-                                        // Handle case where user document doesn't exist
-                                        Toast.makeText(EditProfileActivity.this, "User document does not exist", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    // Handle task failure when fetching user document
-                                    Toast.makeText(EditProfileActivity.this, "Failed to fetch user document", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            // Handle case where 'user' field is null or empty
-                            Toast.makeText(EditProfileActivity.this, "'user' field is null or empty", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // Handle case where document doesn't exist in users_signup collection
-                        Toast.makeText(EditProfileActivity.this, "Document does not exist in users_signup collection", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    // Handle task failure when fetching document from users_signup collection
-                    Toast.makeText(EditProfileActivity.this, "Failed to fetch data from users_signup collection", Toast.LENGTH_SHORT).show();
-                }
-            });
+        String imageUrl = GlobalVariables.person.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            // Load image using Glide
+            Glide.with(EditProfileActivity.this)
+                    .load(imageUrl) // Image URL
+                    .placeholder(R.drawable.prof_placeholder) // Placeholder image
+                    .error(R.drawable.profile) // Error image if loading fails
+                    .into(profileImage); // ImageView to load into
         } else {
-            // Handle the case where there is no authenticated user
-            Toast.makeText(EditProfileActivity.this, "No authenticated user", Toast.LENGTH_SHORT).show();
+            // Handle case where imageUrl is null or empty
+            profileImage.setImageResource(R.drawable.profile);
+        }
+
+        // Check if the user is a worker
+        boolean isWorker = GlobalVariables.isWorker;
+        if (isWorker) {
+            serviceDetailsCard.setVisibility(View.VISIBLE);
+            addPictures.setVisibility(View.VISIBLE);
+        } else {
+            serviceDetailsCard.setVisibility(View.GONE);
+            addPictures.setVisibility(View.GONE);
         }
 
         btnSave.setOnClickListener(v -> {
-            // Update Firestore document with edited fields
+            // Retrieve values from EditText fields
             String name = etName.getText().toString();
             String phone = etPhone.getText().toString();
-            String email = etEmail.getText().toString();
+            String email = etEmail.getText().toString().toLowerCase();
+            String bioData = bio.getText().toString();
+            String fb = etFb.getText().toString();
+            String insta = etInsta.getText().toString();
+            String linkedin = etLinkedin.getText().toString();
+            String location = etLocation.getText().toString();
+            String twitter = etTwitter.getText().toString();
 
-            // Update fields in Firestore
-            userDocRef.update("fName", name,
-                            "PhoneNumber", phone,
-                            "email", email)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(EditProfileActivity.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        });
-
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create an intent to navigate back to MainActivity
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                // Add an extra indicating that we want to navigate to ProfileFragment
-                intent.putExtra("navigateToProfile", true);
-                startActivity(intent);
+            if(phone != null || phone.isEmpty() || name != null || name.isEmpty() ){
+                Toast.makeText(EditProfileActivity.this, "Profile updated Failed Name and Phone NUmber Cannot Empty", Toast.LENGTH_SHORT).show();
+                return;
             }
+            // Update Firestore document with edited fields
+            DocumentReference documentReference = fStore.collection("users").document(GlobalVariables.code);
+            Map<String, Object> user = new HashMap<>();
+            user.put("name", name);
+            user.put("email", email);
+            user.put("bio", bioData);
+            user.put("fb", fb);
+            user.put("insta", insta);
+            user.put("linkedin", linkedin);
+            user.put("location", location);
+            user.put("twitter", twitter);
+            DocumentReference documentReference2 = fStore.collection("users_signup").document(email);
+            Map<String, Object> user2 = new HashMap<>();
+            user2.put("PhoneNumber", phone);
+            documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                 documentReference2.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                     @Override
+                     public void onSuccess(Void unused) {
+                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                         intent.putExtra("navigateToProfile", true);
+                         startActivity(intent);
+                         Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+
+                     }
+                 }).addOnFailureListener(new OnFailureListener() {
+                     @Override
+                     public void onFailure(@NonNull Exception e) {
+                         Toast.makeText(EditProfileActivity.this, "Profile updated Failed", Toast.LENGTH_SHORT).show();
+                     }
+                 });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(EditProfileActivity.this, "Profile updated Failed", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
+
+        btnBack.setOnClickListener(v -> {
+            finish();
+        });
+
 
         // Image selection button click listener
-        btnEditProfilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Open gallery to select an image
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        btnEditProfilePic.setOnClickListener(v -> {
+            // Open gallery to select an image
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        });
+
+        // Set OnClickListeners for edit icons to toggle EditText enabled state
+        setToggleEditListener(editName, etName);
+        setToggleEditListener(editPassword, etPassword);
+        setToggleEditListener(editBio, bio);
+        setToggleEditListener(editNumber, etPhone);
+//        setToggleEditListener(editEmail, etEmail);
+        setToggleEditListener(editFb, etFb);
+        setToggleEditListener(editInsta, etInsta);
+        setToggleEditListener(editLinkedin, etLinkedin);
+        setToggleEditListener(editTwitter, etTwitter);
+        setToggleEditListener(editLocation, etLocation);
+    }
+
+    private void setToggleEditListener(ImageView editIcon, EditText editText) {
+        editIcon.setOnClickListener(v -> {
+
+            // Check if the editIcon corresponds to the password field
+            if(editIcon.getId() != R.id.edit_password) {
+                boolean isEnabled = editText.isEnabled();
+                editText.setEnabled(!isEnabled);
+//                etNewPassword.setEnabled(!isEnabled);
+//                if(newPassword != null) {
+//                    newPassword.setVisibility(isEnabled ? View.GONE : View.VISIBLE);
+//                }
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -223,20 +264,13 @@ public class EditProfileActivity extends AppCompatActivity {
                                         .error(R.drawable.profile)
                                         .into(profileImage);
 
-                                // Update the imageUrl field in Firestore
-                                userDocRef2.update("imageUrl", downloadUrl)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Toast.makeText(EditProfileActivity.this, "Profile picture updated", Toast.LENGTH_SHORT).show();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(EditProfileActivity.this, "Failed to update profile picture", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                // Update the imageUrl field in GlobalVariables
+                                GlobalVariables.person.setImageUrl(downloadUrl);
+
+                                // You may also want to update Firestore here if needed
+                                // db.collection("users").document(GlobalVariables.person.getId()).update("imageUrl", downloadUrl);
+
+                                Toast.makeText(EditProfileActivity.this, "Profile picture updated", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }

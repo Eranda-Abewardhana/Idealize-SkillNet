@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapte
     private List<Categories> categoriesList;
     private List<PersonData> personDataList; // Assuming you get this list from somewhere
     private Context context;
+    private boolean more = false;
 
     public CategoryDataAdapter(List<Categories> categoriesList, List<PersonData> personDataList, Context context) {
         this.categoriesList = categoriesList;
@@ -54,8 +56,23 @@ public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapte
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.personRecyclerView.setLayoutManager(layoutManager);
-        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList1);
+        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList1, category.getName());
         holder.personRecyclerView.setAdapter(personForCategoryAdapter);
+        holder.seeMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(more){
+                    holder.personRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    holder.seeMore.setText("SEE ALL >");
+                }
+                else {
+                    holder.personRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.VERTICAL, false));
+                    holder.seeMore.setText("SEE LESS <");
+                }
+                more = ! more;
+                personForCategoryAdapter.notifyDataSetChanged();
+            }
+        });
         personForCategoryAdapter.notifyDataSetChanged();
     }
 
@@ -67,13 +84,14 @@ public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapte
     public static class CategoryViewHolder extends RecyclerView.ViewHolder {
 
         TextView categoryName;
-        ImageView categoryImage;
         RecyclerView personRecyclerView;
+        Button seeMore;
 
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
             categoryName = itemView.findViewById(R.id.category_name);
             personRecyclerView = itemView.findViewById(R.id.person_list);
+            seeMore = itemView.findViewById(R.id.see_more_person);
         }
     }
 }

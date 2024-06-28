@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 import com.squareup.picasso.Picasso;
@@ -18,9 +19,11 @@ import java.util.List;
 public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCategoryAdapter.PersonViewHolder> {
 
     private List<PersonData> personDataList;
+    private String categories;
 
-    public PersonForCategoryAdapter(List<PersonData> personDataList) {
+    public PersonForCategoryAdapter(List<PersonData> personDataList, String categories) {
         this.personDataList = personDataList;
+        this.categories     = categories;
     }
 
     @NonNull
@@ -34,6 +37,7 @@ public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCate
     public void onBindViewHolder(@NonNull PersonViewHolder holder, int position) {
         PersonData person = personDataList.get(position);
         holder.personName.setText(person.getName());
+        holder.category.setText(categories);
         Picasso.get().load(person.getImageUrl()).into(holder.personImage);
 
         switch (person.getStars()){
@@ -88,12 +92,13 @@ public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCate
 
     public static class PersonViewHolder extends RecyclerView.ViewHolder {
 
-        TextView personName;
+        TextView personName, category;
         ImageView personImage,star1, star2, star3, star4, star5;
 
         public PersonViewHolder(@NonNull View itemView) {
             super(itemView);
             personName = itemView.findViewById(R.id.service_name);
+            category   = itemView.findViewById(R.id.category_type);
             personImage = itemView.findViewById(R.id.category_image);
             star1       = itemView.findViewById(R.id.imageView2);
             star2       = itemView.findViewById(R.id.imageView3);

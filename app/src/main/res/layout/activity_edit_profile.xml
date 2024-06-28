@@ -1,13 +1,16 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/background2"
-    tools:context=".Fragments.ProfileFragment"
-    android:layout_gravity="center"
-    app:layout_anchorGravity="center">
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/background2"
+        tools:context=".Fragments.ProfileFragment">
 
     <!-- Back Button -->
     <ImageButton
@@ -99,6 +102,7 @@
 
                 <EditText
                     android:id="@+id/et_name"
+                    android:enabled="false"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -106,6 +110,14 @@
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
                     android:gravity="end" />
+
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_name"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
             </LinearLayout>
 
             <LinearLayout
@@ -124,43 +136,84 @@
                     android:textColor="@android:color/black"
                     android:gravity="start" />
 
-                <TextView
+                <EditText
                     android:id="@+id/et_password"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="**********"
+                    android:enabled="false"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
-                    android:gravity="end" />
+                    android:gravity="end"
+                    android:layout_marginEnd="40dp"/>
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_password"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/newPass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="start"
                     android:text="New Password"
-                    android:textSize="16sp"
                     android:textColor="@android:color/black"
-                    android:gravity="start" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/et_new_password"
                     android:layout_width="0dp"
+                    android:layout_marginEnd="40dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="**********"
+                    android:gravity="end"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="BIO"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
-                    android:gravity="end" />
+                    android:gravity="center" />
+
+                <ImageView
+                    android:gravity="center"
+                    android:id="@+id/edit_bio"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/edit" />
             </LinearLayout>
+            <EditText
+                android:id="@+id/bio"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -183,11 +236,147 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
                 android:text="Contact Info"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                android:paddingBottom="8dp"/>
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Phone number"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/et_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:gravity="end"
+                    android:text="+94 76 756 5698"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_number"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Email"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/et_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:gravity="end"
+                    android:text="dana02@gmail.com"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="40dp"/>
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_email"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Facebook"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/et_fb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:gravity="end"
+                    android:text="www.Facebook.com"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_fb"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Instagram"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/et_insta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:gravity="end"
+                    android:text="www.Instagram.com"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_insta"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -196,23 +385,30 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Phone number"
+                    android:text="LinkedIn"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
                     android:gravity="start" />
 
                 <EditText
-                    android:id="@+id/et_phone"
-                    android:layout_width="0dp"
+                    android:id="@+id/et_linkedin"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="+94 76 756 5698"
+                    android:enabled="false"
+                    android:text="www.Linkedin.com"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
                     android:gravity="end" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_linkedin"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
             </LinearLayout>
 
             <LinearLayout
@@ -223,36 +419,76 @@
                 android:gravity="center">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Email"
+                    android:text="Twitter"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
                     android:gravity="start" />
 
                 <EditText
-                    android:id="@+id/et_email"
-                    android:layout_width="0dp"
+                    android:id="@+id/et_twitter"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="dana02@gmail.com"
+                    android:enabled="false"
+                    android:text="www.Twitter.com"
                     android:textSize="16sp"
                     android:textColor="@android:color/black"
                     android:gravity="end" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_twitter"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:gravity="start" />
+
+                <EditText
+                    android:id="@+id/et_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:text="Nawala"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:gravity="end" />
+                <ImageView
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:id="@+id/edit_location"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/edit" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- Service Details Card -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/service_details_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="top"
+        android:layout_margin="16dp"
+        android:visibility="gone"
         app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        android:id="@+id/service_details_card">
+        app:cardElevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -264,61 +500,61 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
                 android:text="Service details"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                android:paddingBottom="8dp"/>
+                android:textStyle="bold" />
 
             <EditText
                 android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_gray"
                 android:hint="Service name"
-                android:textSize="16sp"
                 android:padding="8dp"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp"
-                android:layout_height="48dp"
-                android:background="@drawable/edit_text_gray"/>
+                android:textSize="16sp" />
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_gray"
                 android:hint="Service price"
                 android:padding="8dp"
-                android:textSize="16sp"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"/>
+                android:textSize="16sp" />
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_gray"
                 android:hint="About me"
                 android:padding="8dp"
-                android:textSize="16sp"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"/>
+                android:textSize="16sp" />
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/edit_text_gray"
                 android:hint="expertise"
                 android:padding="8dp"
-                android:textSize="16sp"
                 android:textColor="@android:color/black"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"/>
+                android:textSize="16sp" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
-                android:padding="8dp"
-                android:hint="Categories"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"/>
+                android:background="@drawable/edit_text_gray"
+                android:hint="Categories"
+                android:padding="8dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -326,38 +562,39 @@
 
 
     <LinearLayout
+        android:id="@+id/add_pictures"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_margin="16dp"
-        android:id="@+id/add_pictures"
-        >
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pictures:"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:text="Pictures:"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_margin="16dp"
+            android:background="@drawable/edit_text_transparent"
             android:gravity="center"
-            android:background="@drawable/edit_text_transparent">
+            android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/btn_add_picture"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:layout_margin="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Add Picture"
-                android:src="@drawable/img_7"
-                android:layout_margin="8dp"
-                android:layout_gravity="center" />
+                android:src="@drawable/img_7" />
         </LinearLayout>
 
     </LinearLayout>
@@ -374,3 +611,4 @@
         android:layout_gravity="center" />
 
 </LinearLayout>
+</ScrollView>

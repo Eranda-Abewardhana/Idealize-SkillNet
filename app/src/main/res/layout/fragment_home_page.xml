@@ -126,6 +126,7 @@
         </androidx.cardview.widget.CardView>
 
         <LinearLayout
+            android:id="@+id/data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
@@ -195,6 +196,7 @@
                                 android:orientation="vertical">
 
                                 <androidx.recyclerview.widget.RecyclerView
+                                    android:gravity="center"
                                     android:id="@+id/recycler_view"
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"

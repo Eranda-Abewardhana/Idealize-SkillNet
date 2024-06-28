@@ -13,4 +13,9 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="CustomRatingBar" parent="Widget.AppCompat.RatingBar.Indicator">
+        <item name="colorControlNormal">@color/gray</item> <!-- Unselected star color -->
+        <item name="colorControlActivated">@color/gold</item> <!-- Selected star color -->
+        <item name="colorControlHighlight">@color/gold</item> <!-- Highlighted star color -->
+    </style>
 </resources>

@@ -1,5 +1,7 @@
 package com.example.skillnet.Fragments;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +22,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.skillnet.Activities.MainActivity;
 import com.example.skillnet.Adapters.CategoryAdapter;
 import com.example.skillnet.Adapters.CategoryDataAdapter;
@@ -55,6 +60,10 @@ public class HomePageFragment extends Fragment {
     private FirebaseFirestore fStore;
     Firebase firebase = new Firebase();
     private boolean workerUpdated = false;
+    private LinearLayout layout;
+    private Dialog loadingDialog;
+    private Button moreCategories;
+    private boolean more = false;
 
 
     @Nullable
@@ -68,11 +77,38 @@ public class HomePageFragment extends Fragment {
         handler = new Handler();
         fStore = FirebaseFirestore.getInstance();
 
+        // Initialize the loading dialog
+        loadingDialog = new Dialog(getActivity());
+        loadingDialog.setContentView(R.layout.dialog_loading);
+        loadingDialog.setCancelable(false);
+        ImageView loadingGif = loadingDialog.findViewById(R.id.loading_gif);
+        Glide.with(this).asGif().load(R.drawable.loading).into(loadingGif);
+        loadingDialog.show();
+
         // Initialize the RecyclerView
         recyclerView1 = view.findViewById(R.id.recycler_view);
         recyclerView3 = view.findViewById(R.id.recycler_view3);
         recyclerView2 = view.findViewById(R.id.recycler_view2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        layout = view.findViewById(R.id.data);
+        layout.setVisibility(View.GONE);
+
+        moreCategories = view.findViewById(R.id.more_categories);
+
+        moreCategories.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(more){
+                    recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    moreCategories.setText("See More");
+                }
+                else {
+                    recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                    moreCategories.setText("See Less");
+                }
+                more = ! more;
+            }
+        });
 
         // Add the OnClickListener for massage_tab
         LinearLayout massageTab = view.findViewById(R.id.massage_tab);
@@ -156,6 +192,8 @@ public class HomePageFragment extends Fragment {
     private void checkDataReady() {
         if (!GlobalVariables.personDataList.isEmpty() && !GlobalVariables.categoriesList.isEmpty() && !GlobalVariables.postList.isEmpty()) {
             loadAdapters(GlobalVariables.isWorker);
+            layout.setVisibility(View.VISIBLE);
+            loadingDialog.dismiss();
         }
     }
 
