@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background2"
+    tools:context=".Activities.MainActivity">
+
+    <!-- Vertical LinearLayout for imageView12 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="75dp">
+
+        <ImageView
+            android:id="@+id/imageView12"
+            android:layout_width="293dp"
+            android:layout_height="125dp"
+            android:src="@drawable/skillnet_logo" />
+    </LinearLayout>
+
+    <!-- Vertical LinearLayout for imageView14 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/imageView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/landing_text" />
+    </LinearLayout>
+
+    <!-- Vertical LinearLayout for imageView15 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp">
+
+        <ImageView
+            android:id="@+id/imageView15"
+            android:layout_width="203dp"
+            android:layout_height="334dp"
+            android:layout_marginEnd="60dp"
+            android:src="@drawable/landing_img" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="-60dp"
+            android:background="@drawable/button_background2"
+            android:text="Continue" />
+
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_tab_layout"
+        android:visibility="gone"
+        android:layout_marginTop="20dp"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@android:color/black"
+        app:tabIndicatorGravity="top"
+        app:tabMode="fixed">
+
+        <!-- Tab Items -->
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/home" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/robot" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/application" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/profile" />
+    </com.google.android.material.tabs.TabLayout>
+
+</LinearLayout>
