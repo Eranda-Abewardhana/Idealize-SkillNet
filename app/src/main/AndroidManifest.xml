@@ -17,6 +17,12 @@
         android:theme="@style/Theme.SkillNet"
         tools:targetApi="31">
         <activity
+            android:name=".Activities.LandingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.OptionActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.EditProfileActivity"
             android:exported="false" />
         <activity
@@ -36,9 +42,7 @@
         </activity>
         <activity
             android:name=".Activities.MainActivity"
-            android:exported="false">
-
-        </activity>
+            android:exported="false" />
     </application>
 
 </manifest>
