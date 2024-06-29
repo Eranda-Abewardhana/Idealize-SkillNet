@@ -34,13 +34,16 @@ import androidx.fragment.app.Fragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ReviewFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
     private ImageView backButton;
-    private EditText workerNameEditText;
+    private EditText title;
     private EditText reviewEditText;
     private RatingBar ratingBar;
     private Button postButton;
@@ -56,7 +59,7 @@ public class ReviewFragment extends Fragment {
 
         // Initialize views
         backButton = view.findViewById(R.id.imageView2);
-        workerNameEditText = view.findViewById(R.id.worker_name);
+        title = view.findViewById(R.id.topic);
         reviewEditText = view.findViewById(R.id.review_text);
         ratingBar = view.findViewById(R.id.rating_bar);
         postButton = view.findViewById(R.id.button);
@@ -71,13 +74,13 @@ public class ReviewFragment extends Fragment {
         addImageButton.setOnClickListener(v -> openGallery());
 
         postButton.setOnClickListener(v -> {
-            String workerName = workerNameEditText.getText().toString().trim();
+            String topic = title.getText().toString().trim();
             String reviewText = reviewEditText.getText().toString().trim();
             float rating = ratingBar.getRating();
 
-            if (validateInputs(workerName, reviewText, rating)) {
+            if (validateInputs(topic, reviewText, rating)) {
                 if (selectedImageUri != null) {
-                    uploadImageAndPostReview(workerName, reviewText, rating);
+                    uploadImageAndPostReview(topic, reviewText, rating);
                 } else {
                     Toast.makeText(getActivity(), "Please select an image", Toast.LENGTH_SHORT).show();
                 }
@@ -94,7 +97,7 @@ public class ReviewFragment extends Fragment {
 
     private boolean validateInputs(String workerName, String reviewText, float rating) {
         if (workerName.isEmpty()) {
-            workerNameEditText.setError("Worker's name is required");
+            title.setError("Worker's name is required");
             return false;
         }
         if (reviewText.isEmpty()) {
@@ -108,7 +111,7 @@ public class ReviewFragment extends Fragment {
         return true;
     }
 
-    private void uploadImageAndPostReview(String workerName, String reviewText, float rating) {
+    private void uploadImageAndPostReview(String title, String reviewText, float rating) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImageUri);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -121,7 +124,7 @@ public class ReviewFragment extends Fragment {
             uploadTask.addOnSuccessListener(taskSnapshot -> {
                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String downloadUrl = uri.toString();
-                    saveReviewToFirestore(workerName, reviewText, rating, downloadUrl);
+                    saveReviewToFirestore(GlobalVariables.otherPersonData.getpCode(), reviewText, rating, downloadUrl, title);
                 });
             }).addOnFailureListener(e -> {
                 Toast.makeText(getActivity(), "Failed to upload image", Toast.LENGTH_SHORT).show();
@@ -132,12 +135,23 @@ public class ReviewFragment extends Fragment {
         }
     }
 
-    private void saveReviewToFirestore(String workerName, String reviewText, float rating, String imageUrl) {
+    private void saveReviewToFirestore(String clientCode, String reviewText, float rating, String imageUrl, String title) {
+        // Create a SimpleDateFormat instance with the desired format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault());
+
+        // Get the current date and time
+        Date now = new Date();
+
+        // Format the current time as a string
+        String formattedTime = sdf.format(now);
         Map<String, Object> review = new HashMap<>();
-        review.put("workerName", workerName);
-        review.put("reviewText", reviewText);
-        review.put("rating", rating);
+        review.put("clientCode", clientCode);
+        review.put("description", reviewText);
+        review.put("stars", rating);
         review.put("imageUrl", imageUrl);
+        review.put("dateTime", formattedTime);
+        review.put("review", true);
+        review.put("title", title);
 
         DocumentReference documentReference = fStore.collection("reviews")
                 .document(GlobalVariables.code)
@@ -155,7 +169,7 @@ public class ReviewFragment extends Fragment {
     }
 
     private void clearInputs() {
-        workerNameEditText.setText("");
+        title.setText("");
         reviewEditText.setText("");
         ratingBar.setRating(0);
         addImageButton.setImageResource(R.drawable.ic_plus); // Reset image button to default icon

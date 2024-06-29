@@ -1,14 +1,13 @@
 package com.example.skillnet.Adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,14 +21,14 @@ import java.util.List;
 public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapter.CategoryViewHolder> {
 
     private List<Categories> categoriesList;
-    private List<PersonData> personDataList; // Assuming you get this list from somewhere
-    private Context context;
+    private List<PersonData> personDataList;
+    private FragmentActivity activity;
     private boolean more = false;
 
-    public CategoryDataAdapter(List<Categories> categoriesList, List<PersonData> personDataList, Context context) {
+    public CategoryDataAdapter(List<Categories> categoriesList, List<PersonData> personDataList, FragmentActivity activity) {
         this.categoriesList = categoriesList;
         this.personDataList = personDataList;
-        this.context        = context;
+        this.activity = activity;
     }
 
     @NonNull
@@ -46,33 +45,34 @@ public class CategoryDataAdapter extends RecyclerView.Adapter<CategoryDataAdapte
 
         List<PersonData> personDataList1 = new ArrayList<>();
         for (PersonData person : personDataList) {
-                List<String> personCodes = category.getPersonDataList();
-                for (String code : personCodes) {
-                    if (code.equals(person.getpCode())) {
-                        personDataList1.add(person);
-                    }
+            List<String> personCodes = category.getPersonDataList();
+            for (String code : personCodes) {
+                if (code.equals(person.getpCode())) {
+                    personDataList1.add(person);
+                }
             }
         }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
         holder.personRecyclerView.setLayoutManager(layoutManager);
-        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList1, category.getName());
+        PersonForCategoryAdapter personForCategoryAdapter = new PersonForCategoryAdapter(personDataList1, category.getName(), activity);
         holder.personRecyclerView.setAdapter(personForCategoryAdapter);
+
         holder.seeMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(more){
+                if (more) {
                     holder.personRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
                     holder.seeMore.setText("SEE ALL >");
-                }
-                else {
+                } else {
                     holder.personRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext(), LinearLayoutManager.VERTICAL, false));
                     holder.seeMore.setText("SEE LESS <");
                 }
-                more = ! more;
+                more = !more;
                 personForCategoryAdapter.notifyDataSetChanged();
             }
         });
+
         personForCategoryAdapter.notifyDataSetChanged();
     }
 

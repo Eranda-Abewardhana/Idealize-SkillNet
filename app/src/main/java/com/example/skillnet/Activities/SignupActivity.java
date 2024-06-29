@@ -135,7 +135,7 @@ public class SignupActivity extends AppCompatActivity {
                         }
                         maxNumber++;
                         String buffer = "";
-                        if(maxNumber < 9) {
+                        if(maxNumber < 10) {
                             buffer = "00" ;
                         } else if(10 <= maxNumber && maxNumber< 100 ){
                             buffer = "0";

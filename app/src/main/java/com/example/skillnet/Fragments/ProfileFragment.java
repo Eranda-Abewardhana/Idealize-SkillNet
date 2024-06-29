@@ -46,7 +46,7 @@ import java.util.List;
 
 public class ProfileFragment extends Fragment {
     private TextView fName, profession, location, bio, phone, webSite;
-    private ImageView profileImage;
+    private ImageView profileImage , back;
     private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview;
     private ReviewProfileAdapter reviewProfileAdapter;
     private FirebaseFirestore db;
@@ -54,6 +54,13 @@ public class ProfileFragment extends Fragment {
     private DocumentReference userDocRef, userDocRef2;
     private RecyclerView completedProjectsRecyclerView, servicesRecyclerView, recyclerView;
     private ImageView instagramImageView, facebookImageView, twitterImageView, linkedinImageView;
+    private PersonData personData;
+    private String code;
+    private boolean otherPerson;
+
+    public ProfileFragment(boolean otherPerson) {
+        this.otherPerson = otherPerson;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,6 +70,14 @@ public class ProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         initializeViews(view);
+        if(otherPerson){
+            code = GlobalVariables.otherPersonData.getpCode();
+            back.setVisibility(View.VISIBLE);
+        }
+        else {
+            code = GlobalVariables.code;
+            back.setVisibility(View.GONE);
+        }
         setRecyclerViewLayoutManagers();
 
         return view;
@@ -74,6 +89,7 @@ public class ProfileFragment extends Fragment {
         location = view.findViewById(R.id.location);
         bio = view.findViewById(R.id.biodata);
         webSite = view.findViewById(R.id.link);
+        back = view.findViewById(R.id.back);
         phone = view.findViewById(R.id.phone);
         btnMessage = view.findViewById(R.id.btn_msg);
         profileImage = view.findViewById(R.id.profile_picture);
@@ -106,15 +122,21 @@ public class ProfileFragment extends Fragment {
 
         if (currentUser != null) {
             String email = currentUser.getEmail();
-            userDocRef = db.collection("users").document(GlobalVariables.code);
+            userDocRef = db.collection("users").document(code);
             userDocRef2 = db.collection("users_signup").document(email);
 
             userDocRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        GlobalVariables.person = document.toObject(PersonData.class);
-                        setUserData(GlobalVariables.person);
+                        if(otherPerson){
+                            GlobalVariables.otherPersonData = document.toObject(PersonData.class);
+                            setUserData(GlobalVariables.otherPersonData);
+                        }
+                        else {
+                            GlobalVariables.person = document.toObject(PersonData.class);
+                            setUserData(GlobalVariables.person);
+                        }
                         fetchCompletedProjects();
                     } else {
                         showToast("Document does not exist");
@@ -125,8 +147,14 @@ public class ProfileFragment extends Fragment {
             });
             userDocRef2.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
-                    phone.setText(GlobalVariables.person.getPhone());
+                    if(otherPerson){
+                        GlobalVariables.otherPersonData.setPhone(task.getResult().getString("PhoneNumber"));
+                        phone.setText(GlobalVariables.otherPersonData.getPhone());
+                    }
+                    else {
+                        GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
+                        phone.setText(GlobalVariables.person.getPhone());
+                    }
                 }
             });
 
@@ -136,11 +164,12 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setUserData(PersonData person) {
-        fName.setText(person.getName());
-        location.setText(person.getLocation());
-        profession.setText(getUserCategories(person.getpCode()));
-        bio.setText(person.getBio());
-        webSite.setText(person.getWebsite());
+        fName.setText(person.getName() != null && !person.getName().isEmpty() ? person.getName() : " ");
+        location.setText(person.getLocation() != null && !person.getLocation().isEmpty() ? person.getLocation() : " ");
+        profession.setText(getUserCategories(person.getpCode()) != null && !getUserCategories(person.getpCode()).isEmpty() ? getUserCategories(person.getpCode()) : " ");
+        bio.setText(person.getBio() != null && !person.getBio().isEmpty() ? person.getBio() : " ");
+        webSite.setText(person.getWebsite() != null && !person.getWebsite().isEmpty() ? person.getWebsite() : " ");
+        phone.setText(person.getPhone() != null && !person.getPhone().isEmpty() ? person.getPhone() : " ");
         setProfileImage(person.getImageUrl());
         setSocialMediaListeners(person);
     }
@@ -189,11 +218,18 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setButtonListeners(Firebase firebase) {
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
         btnPostProject.setOnClickListener(v -> navigateToFragment(new PostFragment()));
         btnReview.setOnClickListener(v -> navigateToFragment(new ReviewFragment()));
         btnEditProfile.setOnClickListener(v -> startActivity(new Intent(getActivity(), EditProfileActivity.class)));
         btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
-        btnMessage.setOnClickListener(v -> navigateToFragment(new ChatFragment()));
+        btnMessage.setOnClickListener(v ->
+                navigateToFragment(new ChatFragment(GlobalVariables.otherPersonData.getpCode(), true)));
 
         firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
@@ -227,7 +263,7 @@ public class ProfileFragment extends Fragment {
 
     private void fetchProjects(String collection, RecyclerView recyclerView, RecyclerView.Adapter adapter) {
         CollectionReference projectsRef = db.collection("projects")
-                .document(GlobalVariables.code)
+                .document(code)
                 .collection(collection);
 
         projectsRef.get().addOnCompleteListener(task -> {
@@ -265,6 +301,6 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showToast(String message) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

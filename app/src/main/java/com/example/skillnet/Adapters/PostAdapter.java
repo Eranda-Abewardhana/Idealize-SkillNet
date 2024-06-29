@@ -10,8 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.skillnet.Fragments.ProfileFragment;
+import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
@@ -32,12 +36,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Categories> categoriesList;
     private List<PersonData> personDataList; // Assuming you get this list from somewhere
     private Context context;
+    private FragmentActivity activity;
 
-    public PostAdapter(List<Post> postList, List<Categories> categoriesList, List<PersonData> personDataList, Context context) {
+    public PostAdapter(List<Post> postList, List<Categories> categoriesList, List<PersonData> personDataList, Context context, FragmentActivity activity) {
         this.postList = postList;
         this.categoriesList = categoriesList;
         this.personDataList = personDataList;
         this.context = context;
+        this.activity = activity;
         sortPostsByDatetime();
     }
 
@@ -99,7 +105,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         else {
             Picasso.get().load(category.getUrl()).into(holder.image);
         }
-
+        PersonData finalPersonData = personData;
+        holder.profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GlobalVariables.otherPersonData = finalPersonData;
+                FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, new ProfileFragment(true));
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
         // Set the see more button action
         holder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +142,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView categoryName, location, title, price, category2, datetime, description, contact, name;
         ImageView profileImage, image;
         Button seeMoreButton;
-        LinearLayout see_more;
+        LinearLayout see_more, profile;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -144,6 +160,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             description = itemView.findViewById(R.id.description);
             contact = itemView.findViewById(R.id.contact);
             see_more = itemView.findViewById(R.id.seemoredetails);
+            profile = itemView.findViewById(R.id.profile);
         }
     }
 

@@ -185,7 +185,17 @@
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
             </LinearLayout>
-
+            <TextView
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@android:drawable/editbox_background"
+                android:drawableRight="@android:drawable/arrow_down_float"
+                android:drawablePadding="16dp"
+                android:hint="Select Categories"
+                android:textColor="@color/black"
+                android:padding="12dp" />
             <LinearLayout
                 android:layout_margin="10dp"
                 android:layout_width="match_parent"
@@ -266,10 +276,44 @@
                     android:text="+94 76 756 5698"
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/edit_number"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="20dp"
+                    android:gravity="center"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Website"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/et_web"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:gravity="end"
+                    android:text="www.dp.com"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
                 <ImageView
                     android:layout_marginStart="20dp"
                     android:gravity="center"
-                    android:id="@+id/edit_number"
+                    android:id="@+id/edit_web"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/edit" />

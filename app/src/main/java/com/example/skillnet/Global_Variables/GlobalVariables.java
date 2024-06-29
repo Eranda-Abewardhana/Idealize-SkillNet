@@ -20,7 +20,9 @@ public class GlobalVariables extends ViewModel {
     public static String code = "";
     public static List<Categories> categoriesList = new ArrayList<>();
     public static List<Post> postList = new ArrayList<>();
+    public static PersonData otherPersonData = new PersonData();
     public static List<PersonData> personDataList = new ArrayList<>();
     public static List<ReviewModel> reviewModels = new ArrayList<>();
     public static PersonData person = new PersonData();
+    public static String otherCode = "";
 }
