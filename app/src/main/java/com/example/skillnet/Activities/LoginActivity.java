@@ -47,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
 
@@ -55,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.email);
         progressBar = findViewById(R.id.progressbar);
         buttonLogin = findViewById(R.id.LoginButton);
-        back = findViewById(R.id.back);
+        back = findViewById(R.id.backButton);
         textView = findViewById(R.id.SigninNow);
 
         // Initialize GlobalVariables ViewModel
