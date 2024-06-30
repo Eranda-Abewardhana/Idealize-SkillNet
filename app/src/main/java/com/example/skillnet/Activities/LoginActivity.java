@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int REQUEST_WRITE_STORAGE = 112;
     private TextInputEditText editTextPassword, editTextEmail;
-    private Button buttonLogin, back;
+    private Button buttonLogin;
+    private ImageView back;
     private ProgressBar progressBar;
     private TextView textView;
     private FirebaseAuth auth;
