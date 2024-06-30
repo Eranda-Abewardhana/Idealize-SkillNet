@@ -11,12 +11,13 @@ public class Post {
     String description;
     String mobileNo;
     String imageUrl;
+    boolean findWorker;
 
     // No-argument constructor
     public Post() {
     }
 
-    public Post(String postCode, String userCode, String categoryCode, String title, double price, String location, String dateTime, String description, String mobileNo, String imageUrl) {
+    public Post(String postCode, String userCode, String categoryCode, String title, double price, String location, String dateTime, String description, String mobileNo, String imageUrl,Boolean findWorker) {
         this.postCode = postCode;
         this.userCode = userCode;
         this.categoryCode = categoryCode;
@@ -27,6 +28,14 @@ public class Post {
         this.description = description;
         this.mobileNo = mobileNo;
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isFindWorker() {
+        return findWorker;
+    }
+
+    public void setFindWorker(boolean findWorker) {
+        this.findWorker = findWorker;
     }
 
     public String getImageUrl() {

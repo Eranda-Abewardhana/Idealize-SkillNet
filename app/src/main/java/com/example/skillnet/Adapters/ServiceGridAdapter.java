@@ -25,7 +25,10 @@ public class ServiceGridAdapter extends RecyclerView.Adapter<ServiceGridAdapter.
         this.context = context;
         this.projectList = projectList;
     }
-
+    public void updateProjects(List<Project> newProjectList) {
+        this.projectList = newProjectList;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

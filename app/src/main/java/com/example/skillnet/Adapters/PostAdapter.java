@@ -10,8 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.skillnet.Fragments.ProfileFragment;
+import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
@@ -32,12 +36,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Categories> categoriesList;
     private List<PersonData> personDataList; // Assuming you get this list from somewhere
     private Context context;
+    private FragmentActivity activity;
 
-    public PostAdapter(List<Post> postList, List<Categories> categoriesList, List<PersonData> personDataList, Context context) {
+    public PostAdapter(List<Post> postList, List<Categories> categoriesList, List<PersonData> personDataList, Context context, FragmentActivity activity) {
         this.postList = postList;
         this.categoriesList = categoriesList;
         this.personDataList = personDataList;
         this.context = context;
+        this.activity = activity;
         sortPostsByDatetime();
     }
 
@@ -83,6 +89,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
 
         // Bind the data to the views
+        holder.name.setText(personData.getName());
         holder.categoryName.setText(category.getName());
         holder.location.setText(post.getLocation());
         holder.title.setText(post.getTitle());
@@ -98,7 +105,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         else {
             Picasso.get().load(category.getUrl()).into(holder.image);
         }
-
+        PersonData finalPersonData = personData;
+        holder.profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GlobalVariables.otherPersonData = finalPersonData;
+                FragmentTransaction transaction = activity.getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, new ProfileFragment(true));
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
         // Set the see more button action
         holder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,10 +139,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView categoryName, location, title, price, category2, datetime, description, contact;
+        TextView categoryName, location, title, price, category2, datetime, description, contact, name;
         ImageView profileImage, image;
         Button seeMoreButton;
-        LinearLayout see_more;
+        LinearLayout see_more, profile;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,6 +150,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             profileImage = itemView.findViewById(R.id.profile_image);
             categoryName = itemView.findViewById(R.id.category1);
             location = itemView.findViewById(R.id.location);
+            name = itemView.findViewById(R.id.name);
             title = itemView.findViewById(R.id.title);
             price = itemView.findViewById(R.id.price);
             category2 = itemView.findViewById(R.id.category2);
@@ -142,6 +160,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             description = itemView.findViewById(R.id.description);
             contact = itemView.findViewById(R.id.contact);
             see_more = itemView.findViewById(R.id.seemoredetails);
+            profile = itemView.findViewById(R.id.profile);
         }
     }
 

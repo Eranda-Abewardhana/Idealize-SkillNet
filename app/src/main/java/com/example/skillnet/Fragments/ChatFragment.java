@@ -1,5 +1,6 @@
 package com.example.skillnet.Fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,7 +61,15 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     private String documentId = "";
     private  Firebase firebase;
     private PersonData currentUser = new PersonData();
+    private CircleImageView image;
     private TextView name,workType;
+    private boolean isOther;
+    private  String getpCode;
+
+    public ChatFragment(String getpCode, boolean isOther) {
+        this.isOther = isOther;
+        this.getpCode = getpCode;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +77,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         recyclerView = view.findViewById(R.id.recycle);
+        image = view.findViewById(R.id.otherimage);
         chatRecycle = view.findViewById(R.id.chat_list);
         chatLayout = view.findViewById(R.id.chatdatalist);
         massage = view.findViewById(R.id.massage);
@@ -82,18 +93,60 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         name = view.findViewById(R.id.name);
         workType = view.findViewById(R.id.category_emp);
 
-        if(GlobalVariables.isWorker){
+        if(isOther){
+            otherCode = getpCode;
+            name.setText(GlobalVariables.otherPersonData.getName());
+            if(GlobalVariables.otherPersonData.getImageUrl() != null || !GlobalVariables.otherPersonData.getImageUrl().isEmpty()){
+                Picasso.get().load(GlobalVariables.otherPersonData.getImageUrl()).into(image);
+            }
+            chatLayout.setVisibility(View.VISIBLE);
+            String docId;
+            if(GlobalVariables.isWorker) {
+                docId = getpCode +"-"+ GlobalVariables.person.getpCode();
+            }
+            else {
+                docId = GlobalVariables.person.getpCode() +"-"+ getpCode;
+            }
+                firebase.getChat(docId, new FirebaseCallback<DocumentSnapshot>() {
+                    @Override
+                    public void onCallback(List<DocumentSnapshot> list) {
+
+                    }
+
+                    @Override
+                    public void onDocumentSnapshotCallback(DocumentSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onSingleCallback(DocumentSnapshot item) {
+                        if (item != null) {
+                            // Handle the updated document snapshot
+                            Map<String, Object> documentData = item.getData();
+                            UpdateAdapter(documentData, GlobalVariables.otherPersonData);
+                            Log.d("Firestore", "Updated Document data: " + documentData);
+                            // Do something with the data
+                            RefreshAndLoadChat(docId, GlobalVariables.otherPersonData);
+                            // Notify the adapter that the data set has changed
+
+                        } else {
+                            Log.d("Firestore", "Document data: null");
+                        }
+                    }
+                });
+        }
+
+        if(!GlobalVariables.isWorker){
             workType.setText("Worker");
         }
         else{
             workType.setText("Client");
         }
 
-
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(chatLayout.getVisibility() == View.VISIBLE){
+                if(chatLayout.getVisibility() == View.VISIBLE && !isOther){
                     chatLayout.setVisibility(View.GONE) ;
                     chatList.clear();
                     chatAdapter.notifyDataSetChanged();
@@ -109,6 +162,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View view) {
                 String userMessage = massage.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
+                    //client - worker
                     if (!GlobalVariables.isWorker){
                         documentId = code + "-" + otherCode;
                     }else {
@@ -163,7 +217,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         firebase.getUserByEmail(email, new FirebaseCallback<QueryDocumentSnapshot>() {
             @Override
             public void onCallback(List<QueryDocumentSnapshot> users) {
-                if (!users.isEmpty()) {
+                if (!users.isEmpty() ) {
                     QueryDocumentSnapshot user = users.get(0);
                     code = user.getString("user");
                     firebase.getChatsByCode(code, new FirebaseCallback<QueryDocumentSnapshot>() {
@@ -207,7 +261,15 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                                 chatListAdapter.notifyDataSetChanged();
                             } else {
                                 // Handle null case
-                                Toast.makeText(getContext(), "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                                Context context = getContext();
+                                if (context == null) {
+                                    context = getActivity();
+                                }
+                                if (context != null) {
+                                    Toast.makeText(context, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.e("ChatFragment", "Context is null when attempting to show Toast");
+                                }
                             }
                         }
 
@@ -240,7 +302,9 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (personDataList.isEmpty()) {
+                chatAdapter.notifyDataSetChanged();
+                chatRecycle.scrollToPosition(chatList.size() - 1);
+                if (personDataList.isEmpty() && !isOther) {
                     // Timeout reached without data
                     Toast.makeText(getContext(), "Operation timed out", Toast.LENGTH_SHORT).show();
                     // Optionally, you can cancel the Firebase request here if it's supported
@@ -256,6 +320,9 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
 
         chatLayout.setVisibility(View.VISIBLE);
         name.setText(person.getName());
+        if(person.getImageUrl() != null || !person.getImageUrl().isEmpty()){
+            Picasso.get().load(person.getImageUrl()).into(image);
+        }
         otherCode = person.getpCode();
 
         // Ensure position is within bounds
@@ -269,7 +336,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
     }
 
     private void UpdateAdapter(Map<String, Object> documentData, PersonData person) {
-        // Use TreeMap to sort by keys (timestamps)
+        chatList.clear();
         TreeMap<String, Object> sortedDocumentData = new TreeMap<>(documentData);
 
         // Process the sorted document data

@@ -7,6 +7,7 @@
     android:id="@+id/fragment_container">
 
     <!-- Your existing ScrollView content -->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,6 +22,13 @@
             tools:context=".Fragments.ProfileFragment">
 
             <!-- Profile Picture -->
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="50dp"
+                android:layout_gravity="left"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/back" />
+
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_picture"
                 android:layout_width="120dp"
@@ -298,13 +306,13 @@
                                 android:text="PHONE"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
-
                             <TextView
-                                android:id="@+id/link"
-                                android:layout_width="wrap_content"
+                                android:id="@+id/phone"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="www.portfolio.emily.com"
+                                android:text="+94 70 123 4567"
                                 android:textColor="@color/black" />
+
                         </LinearLayout>
 
                         <LinearLayout
@@ -320,13 +328,14 @@
                                 android:text="WEBSITE"
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
-
                             <TextView
-                                android:id="@+id/phone"
-                                android:layout_width="match_parent"
+                                android:id="@+id/link"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="+94 70 123 4567"
+                                android:text="www.portfolio.emily.com"
                                 android:textColor="@color/black" />
+
+
                         </LinearLayout>
 
                     </LinearLayout>

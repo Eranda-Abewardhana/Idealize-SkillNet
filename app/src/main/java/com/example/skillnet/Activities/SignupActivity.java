@@ -102,7 +102,7 @@ public class SignupActivity extends AppCompatActivity {
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
                 String email, password, fullName, Phone;
-                email = String.valueOf(editTextEmail.getText());
+                email = String.valueOf(editTextEmail.getText()).toLowerCase();
                 password = String.valueOf(editTextPassword.getText());
                 fullName = String.valueOf(Name.getText());
                 Phone = String.valueOf(phoneNumber.getText());
@@ -135,7 +135,7 @@ public class SignupActivity extends AppCompatActivity {
                         }
                         maxNumber++;
                         String buffer = "";
-                        if(maxNumber < 9) {
+                        if(maxNumber < 10) {
                             buffer = "00" ;
                         } else if(10 <= maxNumber && maxNumber< 100 ){
                             buffer = "0";

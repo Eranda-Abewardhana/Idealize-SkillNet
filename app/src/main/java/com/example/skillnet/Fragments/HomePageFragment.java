@@ -1,5 +1,7 @@
 package com.example.skillnet.Fragments;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +22,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.skillnet.Activities.MainActivity;
 import com.example.skillnet.Adapters.CategoryAdapter;
 import com.example.skillnet.Adapters.CategoryDataAdapter;
@@ -31,6 +36,8 @@ import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,7 +53,7 @@ public class HomePageFragment extends Fragment {
     private PostAdapter postAdapter;
     private CategoryDataAdapter categoryDataAdapter;
     private Context context;
-    private TextView feeds;
+    private TextView feeds, name;
     private static final String TAG = "Home Page Fragment";
     private static final int MAX_RETRIES = 10;
     private static final long RETRY_INTERVAL_MS = 1000; // 1 second
@@ -55,6 +62,13 @@ public class HomePageFragment extends Fragment {
     private FirebaseFirestore fStore;
     Firebase firebase = new Firebase();
     private boolean workerUpdated = false;
+    private LinearLayout layout;
+    private Dialog loadingDialog;
+    private Button moreCategories;
+    private boolean more = false;
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private DocumentReference userDocRef, userDocRef2;
 
 
     @Nullable
@@ -65,14 +79,44 @@ public class HomePageFragment extends Fragment {
 
         context = getActivity().getApplicationContext();
         feeds = view.findViewById(R.id.feeds);
+        name = view.findViewById(R.id.name);
         handler = new Handler();
         fStore = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
+        // Initialize the loading dialog
+        loadingDialog = new Dialog(getActivity());
+        loadingDialog.setContentView(R.layout.dialog_loading);
+        loadingDialog.setCancelable(false);
+        ImageView loadingGif = loadingDialog.findViewById(R.id.loading_gif);
+        Glide.with(this).asGif().load(R.drawable.loading).into(loadingGif);
+        loadingDialog.show();
 
         // Initialize the RecyclerView
         recyclerView1 = view.findViewById(R.id.recycler_view);
         recyclerView3 = view.findViewById(R.id.recycler_view3);
         recyclerView2 = view.findViewById(R.id.recycler_view2);
         recyclerView2.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        layout = view.findViewById(R.id.data);
+        layout.setVisibility(View.GONE);
+
+        moreCategories = view.findViewById(R.id.more_categories);
+
+        moreCategories.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(more){
+                    recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    moreCategories.setText("See More");
+                }
+                else {
+                    recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+                    moreCategories.setText("See Less");
+                }
+                more = ! more;
+            }
+        });
 
         // Add the OnClickListener for massage_tab
         LinearLayout massageTab = view.findViewById(R.id.massage_tab);
@@ -81,7 +125,7 @@ public class HomePageFragment extends Fragment {
             public void onClick(View v) {
                 // Perform fragment transaction
                 FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, new ChatFragment()); // Replace with your target fragment
+                transaction.replace(R.id.fragment_container, new ChatFragment(GlobalVariables.code, false)); // Replace with your target fragment
                 transaction.addToBackStack(null);
                 transaction.commit();
             }
@@ -156,6 +200,8 @@ public class HomePageFragment extends Fragment {
     private void checkDataReady() {
         if (!GlobalVariables.personDataList.isEmpty() && !GlobalVariables.categoriesList.isEmpty() && !GlobalVariables.postList.isEmpty()) {
             loadAdapters(GlobalVariables.isWorker);
+            layout.setVisibility(View.VISIBLE);
+            loadingDialog.dismiss();
         }
     }
 
@@ -164,13 +210,12 @@ public class HomePageFragment extends Fragment {
         if (GlobalVariables.personDataList.isEmpty() || GlobalVariables.categoriesList.isEmpty() || GlobalVariables.postList.isEmpty()) {
             return;
         }
-
         if (isWorker) {
             recyclerView3.setVisibility(View.VISIBLE);
             recyclerView1.setVisibility(View.GONE);
             recyclerView2.setVisibility(View.GONE);
             feeds.setText("Jobs");
-            postAdapter = new PostAdapter(GlobalVariables.postList, GlobalVariables.categoriesList, GlobalVariables.personDataList, context);
+            postAdapter = new PostAdapter(GlobalVariables.postList, GlobalVariables.categoriesList, GlobalVariables.personDataList, context, getActivity());
             recyclerView3.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
             recyclerView3.setAdapter(postAdapter);
         } else {
@@ -182,7 +227,7 @@ public class HomePageFragment extends Fragment {
             recyclerView1.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             recyclerView1.setAdapter(categoryAdapter);
 
-            categoryDataAdapter = new CategoryDataAdapter(GlobalVariables.categoriesList, GlobalVariables.personDataList, context);
+            categoryDataAdapter = new CategoryDataAdapter(GlobalVariables.categoriesList, GlobalVariables.personDataList, getActivity());
             recyclerView2.setAdapter(categoryDataAdapter);
         }
 
@@ -198,6 +243,25 @@ public class HomePageFragment extends Fragment {
                 if (!users.isEmpty()) {
                     QueryDocumentSnapshot user = users.get(0);
                     GlobalVariables.code = user.getString("user");
+                    if(GlobalVariables.code != null && !GlobalVariables.code.equals("")) {
+                        userDocRef = fStore.collection("users").document(GlobalVariables.code);
+                        userDocRef2 = fStore.collection("users_signup").document(GlobalVariables.email);
+
+                        userDocRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    GlobalVariables.person = document.toObject(PersonData.class);
+                                }
+                            }
+                        });
+                        userDocRef2.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
+                            }
+                        });
+                    }
+                    name.setText(user.getString("fName"));
                     DocumentReference documentReference2 = fStore.collection("users").document(GlobalVariables.code);
                     documentReference2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -248,5 +312,6 @@ public class HomePageFragment extends Fragment {
                 // Not used
             }
         });
+
     }
 }

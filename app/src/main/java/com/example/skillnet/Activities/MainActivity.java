@@ -22,6 +22,7 @@ import com.example.skillnet.Fragments.HomePageFragment;
 import com.example.skillnet.Fragments.NotificationFragment;
 import com.example.skillnet.Fragments.ProfileFragment;
 import com.example.skillnet.Global_Variables.GlobalVariables;
+import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             GlobalVariables.email = user.getEmail();
         }
 
+
         button = findViewById(R.id.logout);
 
         if (user == null) {
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragment(new HomePageFragment());
         viewPagerAdapter.addFragment(new ChatBotFragment());
         viewPagerAdapter.addFragment(new NotificationFragment());
-        viewPagerAdapter.addFragment(new ProfileFragment());
+        viewPagerAdapter.addFragment(new ProfileFragment(false));
         viewPager2.setAdapter(viewPagerAdapter);
 
         int color = ContextCompat.getColor(this, R.color.lite_black);

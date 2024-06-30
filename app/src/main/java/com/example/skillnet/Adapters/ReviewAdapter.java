@@ -71,7 +71,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             }
         }
         for (Categories categories : GlobalVariables.categoriesList){
-            if(categories.getCode().equals(categories.getCode())){
+            if(categories.getCode().equals(review.getCategoryCode())){
                 holder.title.setText(categories.getName());
                 break;
             }

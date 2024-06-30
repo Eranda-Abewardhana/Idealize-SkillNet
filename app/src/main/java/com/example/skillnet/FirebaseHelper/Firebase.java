@@ -3,7 +3,10 @@ package com.example.skillnet.FirebaseHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.skillnet.Models.ChatModel;
 import com.example.skillnet.Models.ReviewModel;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldPath;
 import com.example.skillnet.Global_Variables.GlobalVariables;
@@ -99,6 +102,29 @@ public class Firebase {
                     }
                 });
     }
+    public void getChat(String docId, final FirebaseCallback<DocumentSnapshot> callback) {
+        db.collection("chat_rooms")
+                .document(docId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d("Firestore", "DocumentSnapshot data: " + document.getData());
+                                callback.onSingleCallback(document);
+                            } else {
+                                Log.d("Firestore", "No such document");
+                                callback.onSingleCallback(null);
+                            }
+                        } else {
+                            Log.w("Firestore", "Error getting document.", task.getException());
+                            callback.onSingleCallback(null);
+                        }
+                    }
+                });
+    }
     public void getUserDataById(String docId, final FirebaseCallback<PersonData> callback) {
         db.collection("users")
                 .document(docId)
@@ -129,21 +155,54 @@ public class Firebase {
         // Use FieldPath to handle special characters in fieldName
         FieldPath fieldPath = FieldPath.of(fieldName);
 
-        // Update document in Firestore
-        documentReference.update(fieldPath, fieldValue)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Firestore", "DocumentSnapshot successfully updated!");
-//                            callback.onCallback(null);
-                        } else {
-                            Log.w("Firestore", "Error updating document", task.getException());
-//                            callback.onCallback(null);
-                        }
+        // Check if document exists
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Document exists, update it
+                        documentReference.update(fieldPath, fieldValue)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                                            callback.onSingleCallback(null);
+                                        } else {
+                                            Log.w("Firestore", "Error updating document", task.getException());
+                                            callback.onSingleCallback(null);
+                                        }
+                                    }
+                                });
+                    } else {
+                        // Document does not exist, create it
+                        Map<String, Object> data = new HashMap<>();
+                        data.put(fieldName, fieldValue);
+
+                        documentReference.set(data)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("Firestore", "DocumentSnapshot successfully created!");
+                                            callback.onSingleCallback(null);
+                                        } else {
+                                            Log.w("Firestore", "Error creating document", task.getException());
+                                            callback.onSingleCallback(null);
+                                        }
+                                    }
+                                });
                     }
-                });
+                } else {
+                    Log.w("Firestore", "Error getting document", task.getException());
+                    callback.onSingleCallback(null);
+                }
+            }
+        });
     }
+
     public void listenToDocumentUpdates(String documentId, final FirebaseCallback<DocumentSnapshot> callback) {
         if(!documentId.equals("")) {
             DocumentReference documentReference = db.collection("chat_rooms").document(documentId);
@@ -237,6 +296,24 @@ public class Firebase {
                         callback.onCallback(categoriesList);
                     }
                 });
+    }
+    public void updateCategories(List<Categories> categoriesList) {
+        for (Categories category : categoriesList) {
+            db.collection("categories").document(category.getCode())
+                    .set(category)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Firestore", "Error updating document", e);
+                        }
+                    });
+        }
     }
     // Method to start listening for chat_rooms updates
     public void getAllPosts(final FirebaseCallback<Post> callback) {
