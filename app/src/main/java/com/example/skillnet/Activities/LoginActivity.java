@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int REQUEST_WRITE_STORAGE = 112;
     private TextInputEditText editTextPassword, editTextEmail;
-    private Button buttonLogin, back;
+    private Button buttonLogin;
+    private ImageView back;
     private ProgressBar progressBar;
     private TextView textView;
     private FirebaseAuth auth;
@@ -47,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
 
@@ -55,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.email);
         progressBar = findViewById(R.id.progressbar);
         buttonLogin = findViewById(R.id.LoginButton);
-        back = findViewById(R.id.back);
+        back = findViewById(R.id.backButton);
         textView = findViewById(R.id.SigninNow);
 
         // Initialize GlobalVariables ViewModel
