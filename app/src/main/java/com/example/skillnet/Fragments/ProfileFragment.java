@@ -46,8 +46,8 @@ import java.util.List;
 
 public class ProfileFragment extends Fragment {
     private TextView fName, profession, location, bio, phone, webSite;
-    private ImageView profileImage , back;
-    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview;
+    private ImageView profileImage, back;
+    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview ,  btnNewPost;
     private ReviewProfileAdapter reviewProfileAdapter;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -70,20 +70,52 @@ public class ProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         initializeViews(view);
-        if(otherPerson){
+        if (otherPerson) {
+            // api balana anik eka other person
             code = GlobalVariables.otherPersonData.getpCode();
             back.setVisibility(View.VISIBLE);
-        }
-        else {
+            btnMessage.setVisibility(View.VISIBLE);
+
+            btnPostProject.setVisibility(View.GONE);
+            btnReview.setVisibility(View.GONE);
+            btnNewPost.setVisibility(View.GONE);
+            btnEditProfile.setVisibility(View.GONE);
+            btnSettings.setVisibility(View.GONE);
+            profession.setVisibility(View.GONE);
+
+            if(GlobalVariables.otherPersonData.isIsworker()){
+                btnReview.setVisibility(View.VISIBLE);
+                profession.setVisibility(View.VISIBLE);
+            }
+
+
+
+        } else {
             code = GlobalVariables.code;
             back.setVisibility(View.GONE);
+            btnEditProfile.setVisibility(View.VISIBLE);
+            btnSettings.setVisibility(View.VISIBLE);
+            btnMessage.setVisibility(View.GONE);
+            btnNewPost.setVisibility(View.GONE);
+
+            if (GlobalVariables.isWorker) {
+                btnEditProfile.setVisibility(View.VISIBLE);
+                btnPostProject.setVisibility(View.GONE);
+
+            } else {
+                btnEditProfile.setVisibility(View.VISIBLE);
+                btnPostProject.setVisibility(View.VISIBLE);
+                profession.setVisibility(View.GONE);
+            }
         }
+
         setRecyclerViewLayoutManagers();
 
         return view;
     }
 
     private void initializeViews(View view) {
+        btnNewPost = view.findViewById(R.id.btn_post) ;
         fName = view.findViewById(R.id.name);
         profession = view.findViewById(R.id.profession);
         location = view.findViewById(R.id.location);
@@ -129,11 +161,10 @@ public class ProfileFragment extends Fragment {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        if(otherPerson){
+                        if (otherPerson) {
                             GlobalVariables.otherPersonData = document.toObject(PersonData.class);
                             setUserData(GlobalVariables.otherPersonData);
-                        }
-                        else {
+                        } else {
                             GlobalVariables.person = document.toObject(PersonData.class);
                             setUserData(GlobalVariables.person);
                         }
@@ -145,19 +176,18 @@ public class ProfileFragment extends Fragment {
                     showToast("Failed to fetch document");
                 }
             });
+
             userDocRef2.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    if(otherPerson){
+                    if (otherPerson) {
                         GlobalVariables.otherPersonData.setPhone(task.getResult().getString("PhoneNumber"));
                         phone.setText(GlobalVariables.otherPersonData.getPhone());
-                    }
-                    else {
+                    } else {
                         GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
                         phone.setText(GlobalVariables.person.getPhone());
                     }
                 }
             });
-
         }
 
         setButtonListeners(firebase);
@@ -218,12 +248,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setButtonListeners(Firebase firebase) {
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getParentFragmentManager().popBackStack();
-            }
-        });
+        back.setOnClickListener(v -> getParentFragmentManager().popBackStack());
         btnPostProject.setOnClickListener(v -> navigateToFragment(new PostFragment()));
         btnReview.setOnClickListener(v -> navigateToFragment(new ReviewFragment()));
         btnEditProfile.setOnClickListener(v -> startActivity(new Intent(getActivity(), EditProfileActivity.class)));
@@ -301,6 +326,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showToast(String message) {
-//        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        // Uncomment the below line to show toast messages
+        // Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
