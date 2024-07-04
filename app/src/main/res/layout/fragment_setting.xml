@@ -97,19 +97,30 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="monospace"
-                android:text="Switch Worker Account"
+                android:text="Switch Account"
                 android:textColor="@color/lite_black"
                 android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Client"/>
 
             <Switch
                 android:id="@+id/switch1"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="4dp"
                 android:fontFamily="monospace"
                 android:padding="9dp"
+                android:shadowDx="@android:integer/config_longAnimTime"
+                android:shadowDy="@android:integer/config_longAnimTime"
                 android:textColor="@color/lite_black"
+                android:shadowColor="@color/gray"
                 android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Worker"/>
         </LinearLayout>
 
         <!-- Log Out Row -->

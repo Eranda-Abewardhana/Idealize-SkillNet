@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Jhon Peters"
+                android:text="User"
                 android:textColor="#000000"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -53,7 +53,7 @@
                 android:id="@+id/profession"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Interior Designer"
+                android:text="Services"
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
@@ -76,7 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="8dp"
-                    android:text="Nawala, Sri Lanka"
+                    android:text="Location"
                     android:textColor="#888888"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -92,7 +92,7 @@
                 <!-- Edit Profile Button -->
                 <Button
                     android:id="@+id/btn_edit_profile"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="20dp"
                     android:layout_weight="1"
@@ -103,7 +103,7 @@
                 <!-- Post Project Button -->
                 <Button
                     android:id="@+id/btn_post_project"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="20dp"
                     android:layout_weight="1"
@@ -145,7 +145,7 @@
                     android:layout_margin="10dp"
                     android:paddingEnd="30dp"
                     android:paddingBottom="10dp"
-                    android:text="New Post"
+                    android:text="Post a New Job"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
@@ -210,6 +210,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/bio_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
@@ -218,6 +219,7 @@
                         android:orientation="vertical">
 
                         <TextView
+
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="5dp"
@@ -250,6 +252,7 @@
                             android:textStyle="bold" />
 
                         <LinearLayout
+                            android:id="@+id/icons_layout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
@@ -286,6 +289,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/contacts_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
@@ -316,6 +320,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="horizontal">
@@ -342,6 +347,7 @@
 
                     <!-- Completed Projects Section -->
                     <LinearLayout
+                        android:id="@+id/services_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -368,10 +374,14 @@
                             tools:listitem="@layout/grid_services_item" />
                     </LinearLayout>
                     <LinearLayout
+                        android:id="@+id/completed_project_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:orientation="vertical">
+
+
+
 
                         <TextView
                             android:id="@+id/completed_projects_title"
@@ -393,6 +403,7 @@
                             tools:listitem="@layout/grid_item" />
                     </LinearLayout>
                     <LinearLayout
+                        android:id="@+id/review_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"

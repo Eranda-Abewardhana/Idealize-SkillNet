@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +45,13 @@ import java.util.List;
 
 public class ProfileFragment extends Fragment {
     private TextView fName, profession, location, bio, phone, webSite;
+
+    private View bioLayout;
+    private View iconsLayout;
+
+    private View reviewLayout;
+    private View servicesLayout;
+    private View completedLayout;
     private ImageView profileImage, back;
     private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview ,  btnNewPost;
     private ReviewProfileAdapter reviewProfileAdapter;
@@ -82,30 +88,55 @@ public class ProfileFragment extends Fragment {
             btnEditProfile.setVisibility(View.GONE);
             btnSettings.setVisibility(View.GONE);
             profession.setVisibility(View.GONE);
+            profession.setVisibility(View.GONE);
+            bioLayout.setVisibility(View.GONE);
+            servicesLayout.setVisibility(View.GONE);
+            completedLayout.setVisibility(View.VISIBLE);
+            iconsLayout.setVisibility(View.GONE);
+            reviewLayout.setVisibility(View.GONE);
 
             if(GlobalVariables.otherPersonData.isIsworker()){
                 btnReview.setVisibility(View.VISIBLE);
                 profession.setVisibility(View.VISIBLE);
+                bioLayout.setVisibility(View.VISIBLE);
+                servicesLayout.setVisibility(View.VISIBLE);
+                completedLayout.setVisibility(View.GONE);
+                iconsLayout.setVisibility(View.VISIBLE);
+                reviewLayout.setVisibility(View.VISIBLE);
+
             }
 
 
 
         } else {
             code = GlobalVariables.code;
+
             back.setVisibility(View.GONE);
             btnEditProfile.setVisibility(View.VISIBLE);
             btnSettings.setVisibility(View.VISIBLE);
             btnMessage.setVisibility(View.GONE);
             btnNewPost.setVisibility(View.GONE);
+            btnReview.setVisibility(View.GONE);
 
             if (GlobalVariables.isWorker) {
                 btnEditProfile.setVisibility(View.VISIBLE);
                 btnPostProject.setVisibility(View.GONE);
+                bioLayout.setVisibility(View.VISIBLE);
+                servicesLayout.setVisibility(View.VISIBLE);
+                completedLayout.setVisibility(View.GONE);
+                iconsLayout.setVisibility(View.VISIBLE);
+                reviewLayout.setVisibility(View.VISIBLE);
+
 
             } else {
                 btnEditProfile.setVisibility(View.VISIBLE);
                 btnPostProject.setVisibility(View.VISIBLE);
                 profession.setVisibility(View.GONE);
+                bioLayout.setVisibility(View.GONE);
+                servicesLayout.setVisibility(View.GONE);
+                completedLayout.setVisibility(View.VISIBLE);
+                iconsLayout.setVisibility(View.GONE);
+                reviewLayout.setVisibility(View.GONE);
             }
         }
 
@@ -115,6 +146,12 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initializeViews(View view) {
+
+        bioLayout = view.findViewById(R.id.bio_layout);
+        iconsLayout= view.findViewById(R.id.icons_layout);
+        servicesLayout = view.findViewById(R.id.services_layout);
+        completedLayout= view.findViewById(R.id.completed_project_layout);
+        reviewLayout = view.findViewById(R.id.review_layout) ;
         btnNewPost = view.findViewById(R.id.btn_post) ;
         fName = view.findViewById(R.id.name);
         profession = view.findViewById(R.id.profession);
