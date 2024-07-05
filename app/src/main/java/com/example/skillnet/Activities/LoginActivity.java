@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         // Back button click listener
         back.setOnClickListener(v -> {
             user = auth.getCurrentUser();
-            if (user == null) {
+            if (user != null) {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 GlobalVariables.addAccount = false;
                 startActivity(intent);

@@ -74,6 +74,9 @@ public class SignupActivity extends AppCompatActivity {
         button = findViewById(R.id.SignupButton);
         tvAlreadyHaveAccount = findViewById(R.id.tv_already_have_account);
 
+        Intent newintent = getIntent();
+        boolean isWorker = newintent.getBooleanExtra("isWorker", false);
+
         CircleImageView circleImageView = findViewById(R.id.circleImageView);
 
         // Set an OnClickListener on the CircleImageView
@@ -171,7 +174,7 @@ public class SignupActivity extends AppCompatActivity {
                                             DocumentReference documentReference2 = fStore.collection("users").document(maxPCode);
                                             Map<String, Object> user2 = new HashMap<>();
                                             user2.put("imageUrl", "");
-                                            user2.put("isworker", false);
+                                            user2.put("isworker", isWorker);
                                             user2.put("name", fullName);
                                             user2.put("pCode", maxPCode);
                                             user2.put("stars", 0);
