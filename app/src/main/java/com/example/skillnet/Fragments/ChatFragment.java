@@ -162,30 +162,36 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             public void onClick(View view) {
                 String userMessage = massage.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
-                    //client - worker
-                    if (!GlobalVariables.isWorker){
+                    // Construct the document ID
+                    if (!GlobalVariables.isWorker) {
                         documentId = code + "-" + otherCode;
-                    }else {
-                        documentId = otherCode + "-" + code; // Construct the document ID
+                    } else {
+                        documentId = otherCode + "-" + code;
                     }
-                    // Create a SimpleDateFormat instance with the desired format
+
+                    // Get the current date and time formatted as string
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd[HH:mm:ss]", Locale.getDefault());
-
-                    // Get the current date and time
                     Date now = new Date();
-
-                    // Format the current time as a string
                     String formattedTime = sdf.format(now);
+                    String fieldName = formattedTime + " " + code;
 
+                    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault());
+                    Date now2 = new Date();
+                    String formattedTime2 = sdf2.format(now2);
 
-                    String fieldName = formattedTime + " " + code; // Construct the field name
-
-                    // Optionally, clear the message field after sending
+                    // Clear the message field after sending
                     massage.setText("");
 
-                    // Or, if you are in an Android environment, use Log.d() to log the values
+                    // Add new message to chatList immediately for instant UI update
+                    chatList.add(new ChatModel("user", userMessage, currentUser, GlobalVariables.otherPersonData, formattedTime2));
+                    chatAdapter.notifyDataSetChanged();
+                    chatRecycle.scrollToPosition(chatList.size() - 1);
+
+                    // Log document ID and field name
                     Log.d("Firestore", "Document ID: " + documentId);
                     Log.d("Firestore", "Field Name: " + fieldName);
+
+                    // Add chat data to Firebase
                     firebase.addChatData(documentId, fieldName, userMessage, new FirebaseCallback<Void>() {
                         @Override
                         public void onCallback(List<Void> list) {
@@ -197,12 +203,10 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
 
                         @Override
                         public void onSingleCallback(Void result) {
-                            // Handle the result of the update operation
                             if (result == null) {
                                 Log.d("Firestore", "Field added successfully");
-                                chatAdapter.notifyDataSetChanged();
-                                chatRecycle.scrollToPosition(chatList.size() - 1);
-                                
+                                // Listen for changes in Firebase to reflect any new messages
+                                RefreshAndLoadChat(documentId, GlobalVariables.otherPersonData);
                             } else {
                                 Log.w("Firestore", "Error adding field");
                             }
@@ -211,6 +215,7 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                 }
             }
         });
+
 
 
         // Fetch user by email
@@ -344,14 +349,17 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
             String key = entry.getKey();
             Object value = entry.getValue();
             Log.d("Firestore", "Key: " + key + ", Value: " + value);
+            if(isOther)
+                currentUser = GlobalVariables.person;
+                code        = GlobalVariables.code;
+            String dataTime = key.replace(code,"").replace(otherCode,"").replace("[","  ").replace("]","");
             if (key.contains(code)) {
-                chatList.add(new ChatModel("user", value.toString(), currentUser, person));
+                chatList.add(new ChatModel("user", value.toString(), currentUser, person, dataTime));
             } else {
                 otherCode = key.split(" ")[1];
-                chatList.add(new ChatModel("otherUser", value.toString(), currentUser, person));
+                chatList.add(new ChatModel("otherUser", value.toString(), currentUser, person, dataTime));
             }
         }
-        // Notify the adapter that the data set has changed
         chatAdapter.notifyDataSetChanged();
         chatRecycle.scrollToPosition(chatList.size() - 1);
 

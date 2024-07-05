@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.skillnet.Fragments.ChatFragment;
+import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
@@ -43,6 +44,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
     public void onBindViewHolder(@NonNull ChatListViewHolder holder, int position) {
         PersonData person = personDataList.get(position);
         holder.personName.setText(person.getName());
+        if(!GlobalVariables.isWorker){
+            holder.category.setText("Worker");
+        }
+        else{
+            holder.category.setText("Client");
+        }
         Picasso.get().load(person.getImageUrl()).into(holder.personImage);
 
         // Set click listener

@@ -37,6 +37,15 @@
             android:visibility="visible" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/usertime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/gray" />
+
     <LinearLayout
         android:id="@+id/robot_card"
         android:layout_width="match_parent"
@@ -64,5 +73,12 @@
             android:text="Hiiii !"
             android:textColor="@color/white" />
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/bottime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/gray" />
 </LinearLayout>

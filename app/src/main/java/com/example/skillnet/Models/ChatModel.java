@@ -4,13 +4,23 @@ public class ChatModel {
     String code;
     String massage;
     PersonData user;
+    String dateTime;
     PersonData otherUser;
 
-    public ChatModel(String code, String massage, PersonData user, PersonData otherUser) {
+    public ChatModel(String code, String massage, PersonData user, PersonData otherUser, String dateTime) {
         this.code = code;
         this.massage = massage;
         this.user = user;
         this.otherUser = otherUser;
+        this.dateTime = dateTime;
+    }
+
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 
     public PersonData getUser() {

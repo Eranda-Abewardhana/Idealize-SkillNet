@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.skillnet.Adapters.ChatBotAdapter;
 import com.example.skillnet.FirebaseHelper.Firebase;
 import com.example.skillnet.FirebaseHelper.FirebaseCallback;
+import com.example.skillnet.Global_Variables.GlobalVariables;
+import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.ChatModel;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.R;
@@ -36,9 +38,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,6 +61,7 @@ public class ChatBotFragment extends Fragment {
     // Replace with your API Key obtained from Google AI Studio
     private static final String API_KEY = "AIzaSyBn4IJBo-jtgV2MAjgPOZhYWe6VOjX6SIw";
     private Firebase firebase;
+    private boolean isFirst = true;
 
     @Nullable
     @Override
@@ -72,6 +78,16 @@ public class ChatBotFragment extends Fragment {
         configBuilder.topK = 32;
         configBuilder.topP = 1f;
         configBuilder.maxOutputTokens = 4096;
+
+        String allCategories = "";
+
+        for (Categories category : GlobalVariables.categoriesList)
+            allCategories = allCategories +", "+ category.getName();
+
+        String historyC = "Skillnet is a modern marketplace where freelancers connect with clients who need their skills. Freelancers create detailed profiles showing their skills, work experience, portfolios, and reviews from past clients. This helps them get noticed by clients who are looking for their specific talents.\n\n" +
+                "Freelancers can browse job listings in categories like " + allCategories + ". They can apply for jobs that match their expertise and interests.\n\n" +
+                "Clients can easily post jobs and find the right freelancers by looking through detailed freelancer profiles and service categories. Each freelancer profile includes important information like their past projects, skills, services offered, rates, and reviews from previous clients. This helps clients make informed decisions about who to hire based on proven skills and performance.\n\n" +
+                "Skillnet offers advanced filters for job searches, secure messaging within the app, and an easy-to-use interface for managing projects for both freelancers and clients. One of its standout features is a client chatbot that provides instant help with writing job posts and finding the best freelancers. This makes the platform user-friendly with quick support and guidance.";
 
 
         ArrayList<SafetySetting> safetySettings = new ArrayList<>();
@@ -139,7 +155,11 @@ public class ChatBotFragment extends Fragment {
                 String userMessage = userMessageInput.getText().toString().trim();
                 if (!userMessage.isEmpty()) {
                     // Add user message to the chat list
-                    chatList.add(new ChatModel("user", userMessage, currentUser, null ));
+                    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault());
+                    Date now2 = new Date();
+                    String formattedTime2 = sdf2.format(now2);
+
+                    chatList.add(new ChatModel("user", userMessage, currentUser, null, formattedTime2 ));
                     chatAdapter.notifyItemInserted(chatList.size() - 1);
                     recyclerView.scrollToPosition(chatList.size() - 1);
                     userMessageInput.setText("");
@@ -147,10 +167,16 @@ public class ChatBotFragment extends Fragment {
                     // Initialize chat with message history
                     Content.Builder userContentBuilder = new Content.Builder();
                     userContentBuilder.setRole("user");
-                    userContentBuilder.addText(userMessage);
-                    Content userContent = userContentBuilder.build();
 
-                    List<Content> history = Arrays.asList(userContent);
+                    if(isFirst) {
+                        userContentBuilder.addText( historyC + "\n" + userMessage);
+                        isFirst = false;
+                    }
+                    else{
+                        userContentBuilder.addText(  userMessage);
+                    }
+                    Content userContent = userContentBuilder.build();
+                    List<Content> history = Arrays.asList( userContent);
                     ChatFutures chat = model.startChat(history);
 
                     // Start chat with initial history
@@ -164,7 +190,7 @@ public class ChatBotFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    chatList.add(new ChatModel("bot", botResponse, currentUser, null ));
+                                    chatList.add(new ChatModel("bot", botResponse, currentUser, null, formattedTime2 ));
                                     chatAdapter.notifyItemInserted(chatList.size() - 1);
                                     recyclerView.scrollToPosition(chatList.size() - 1);
                                 }
@@ -174,7 +200,12 @@ public class ChatBotFragment extends Fragment {
                         @Override
                         public void onFailure(Throwable t) {
                             t.printStackTrace();
-                            Toast.makeText(getContext(), "Failed to get response from AI model", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), "Failed to get response from AI model", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     }, executorService);
                 }
