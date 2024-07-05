@@ -39,6 +39,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,6 @@ public class ProfileFragment extends Fragment {
     private DocumentReference userDocRef, userDocRef2;
     private RecyclerView completedProjectsRecyclerView, servicesRecyclerView, recyclerView;
     private ImageView instagramImageView, facebookImageView, twitterImageView, linkedinImageView;
-    private PersonData personData;
     private String code;
     private boolean otherPerson;
 
@@ -106,11 +106,8 @@ public class ProfileFragment extends Fragment {
 
             }
 
-
-
         } else {
             code = GlobalVariables.code;
-
             back.setVisibility(View.GONE);
             btnEditProfile.setVisibility(View.VISIBLE);
             btnSettings.setVisibility(View.VISIBLE);
@@ -200,10 +197,12 @@ public class ProfileFragment extends Fragment {
                     if (document.exists()) {
                         if (otherPerson) {
                             GlobalVariables.otherPersonData = document.toObject(PersonData.class);
-                            setUserData(GlobalVariables.otherPersonData);
+                            if(GlobalVariables.otherPersonData != null)
+                                setUserData(GlobalVariables.otherPersonData);
                         } else {
                             GlobalVariables.person = document.toObject(PersonData.class);
-                            setUserData(GlobalVariables.person);
+                            if(GlobalVariables.person != null)
+                                setUserData(GlobalVariables.person);
                         }
                         fetchCompletedProjects();
                     } else {
@@ -256,11 +255,7 @@ public class ProfileFragment extends Fragment {
 
     private void setProfileImage(String imageUrl) {
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            Glide.with(requireContext())
-                    .load(imageUrl)
-                    .placeholder(R.drawable.profile)
-                    .error(R.drawable.profile)
-                    .into(profileImage);
+            Picasso.get().load(imageUrl).into(profileImage);
         } else {
             profileImage.setImageResource(R.drawable.profile);
         }
