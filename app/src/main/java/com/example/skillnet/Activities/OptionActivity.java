@@ -19,11 +19,11 @@ public class OptionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_option);
         SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-        boolean isGust = sharedPreferences.getBoolean("isGust", false);
+        boolean isGuest = sharedPreferences.getBoolean("isGuest", false);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null || isGust) {
+        if (currentUser != null || isGuest) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
@@ -46,7 +46,7 @@ public class OptionActivity extends AppCompatActivity {
         guestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editor.putBoolean("isGust", true);
+                editor.putBoolean("isGuest", true);
                 editor.apply(); // or editor.commit();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);

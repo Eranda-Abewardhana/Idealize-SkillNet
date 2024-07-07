@@ -53,8 +53,8 @@ public class SignupActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-        boolean isGust = sharedPreferences.getBoolean("isGust", false);
-        if (currentUser != null  || isGust) {
+        boolean isGuest = sharedPreferences.getBoolean("isGuest", false);
+        if (currentUser != null  || isGuest) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();

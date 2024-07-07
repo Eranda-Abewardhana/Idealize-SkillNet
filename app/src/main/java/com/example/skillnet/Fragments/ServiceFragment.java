@@ -118,18 +118,13 @@ public class ServiceFragment extends Fragment {
                 String formattedTime = sdf.format(now);
                 // Create a map to store data
                 Map<String, Object> post = new HashMap<>();
-                post.put("categoryCode", categoryCode);
-                post.put("description", description);
                 post.put("dateTime", formattedTime);
-                post.put("findWorker", !GlobalVariables.isWorker);
                 post.put("price", price);
                 post.put("imageUrl", downloadUrl);
-                post.put("mobileNo", GlobalVariables.person.getPhone());
                 post.put("title", topic);
-                post.put("userCode", GlobalVariables.code);
 
                 // Save data to Firestore
-                DocumentReference documentReference = fStore.collection("services").document();
+                DocumentReference documentReference = fStore.collection("projects").document(GlobalVariables.code).collection("worker's_services").document();
                 documentReference.set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {

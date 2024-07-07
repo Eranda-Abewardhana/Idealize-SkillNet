@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-        boolean isGust = sharedPreferences.getBoolean("isGust", false);
+        boolean isGuest = sharedPreferences.getBoolean("isGuest", false);
 
         auth = FirebaseAuth.getInstance();
         firebase = new Firebase();
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         button = findViewById(R.id.logout);
 
-        if (user == null && !isGust) {
+        if (user == null && !isGuest) {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
             finish();
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tab_layout);
         viewPager2 = findViewById(R.id.viewpager);
 
-        if(isGust){
+        if(isGuest){
             tabLayout.setVisibility(View.GONE);
         }
         else {

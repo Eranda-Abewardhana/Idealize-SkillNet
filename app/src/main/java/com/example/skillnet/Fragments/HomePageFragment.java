@@ -84,7 +84,7 @@ public class HomePageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        boolean isGust = sharedPreferences.getBoolean("isGust", false);
+        boolean isGuest = sharedPreferences.getBoolean("isGuest", false);
 
         context = getActivity().getApplicationContext();
         feeds = view.findViewById(R.id.feeds);
@@ -107,7 +107,7 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // Handle logout row click
-                editor.putBoolean("isGust", false);
+                editor.putBoolean("isGuest", false);
                 editor.apply(); // Save the changes
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
@@ -158,12 +158,12 @@ public class HomePageFragment extends Fragment {
         GlobalVariables.categoriesList.clear();
         GlobalVariables.postList.clear();
 
-        if(isGust) {
+        if(isGuest) {
             back.setVisibility(View.VISIBLE);
             massageTab.setVisibility(View.GONE);
             workerUpdated = true;
             GlobalVariables.isWorker = false;
-            name.setText("Gust User");
+            name.setText("Guest User");
         }
         else {
             retryGetUserCode();

@@ -1,6 +1,9 @@
 package com.example.skillnet.Activities;
 
+import static android.app.PendingIntent.getActivity;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import static java.security.AccessController.getContext;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,12 +25,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.skillnet.Activities.MainActivity;
+import com.example.skillnet.Adapters.GridAdapter;
+import com.example.skillnet.Adapters.ServiceGridAdapter;
 import com.example.skillnet.FirebaseHelper.Firebase;
+import com.example.skillnet.Fragments.PostFragment;
+import com.example.skillnet.Fragments.ServiceFragment;
+import com.example.skillnet.Fragments.SettingFragment;
 import com.example.skillnet.Global_Variables.GlobalVariables;
 import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
+import com.example.skillnet.Models.Project;
 import com.example.skillnet.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,14 +51,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,18 +76,24 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
+    private FirebaseFirestore db;
+
     private EditText etName, etPhone, etFb, etInsta, etLinkedin, etTwitter, etLocation, bio, etPassword,etWeb;
     private TextView etEmail, etNewPassword, categoriesSpinner;
-    private Button btnSave;
+    private Button btnSave ,btnAddService;
     private ImageButton btnBack, btnEditProfilePic, btnAddPicture;
     private ImageView editName, editPassword, editBio, editNumber, editEmail, editFb, editInsta, editLinkedin, editTwitter, editLocation, editWebsite;
     private de.hdodenhof.circleimageview.CircleImageView profileImage;
     private LinearLayout addPictures;
+
+    private String code;
     private CardView serviceDetailsCard;
     private FirebaseAuth mAuth;
     private StorageReference storageRef;
     private FirebaseFirestore fStore;
     private LinearLayout newPassword;
+
+    private RecyclerView  servicesRecyclerView;
     boolean[] selectedLanguage;
     ArrayList<Integer> categories = new ArrayList<>();
     List<String> categoryList = new ArrayList<>();
@@ -77,6 +103,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
@@ -85,8 +112,9 @@ public class EditProfileActivity extends AppCompatActivity {
         fStore = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
         firebase = new Firebase();
-
+        code = GlobalVariables.code;
         // Initialize Views
+        servicesRecyclerView = findViewById(R.id.services_recycler_view);
         categoriesSpinner = findViewById(R.id.spinner);
         newPassword = findViewById(R.id.newPass);
         etWeb = findViewById(R.id.et_web);
@@ -107,8 +135,7 @@ public class EditProfileActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profile_image);
         btnEditProfilePic = findViewById(R.id.btn_edit_profile_image);
         serviceDetailsCard = findViewById(R.id.service_details_card);
-        addPictures = findViewById(R.id.add_pictures);
-        btnAddPicture = findViewById(R.id.btn_add_picture);
+        btnAddService = findViewById(R.id.btn_add_services);
         editName = findViewById(R.id.edit_name);
         editPassword = findViewById(R.id.edit_password);
         editBio = findViewById(R.id.edit_bio);
@@ -119,6 +146,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editLinkedin = findViewById(R.id.edit_linkedin);
         editTwitter = findViewById(R.id.edit_twitter);
         editLocation = findViewById(R.id.edit_location);
+        db = FirebaseFirestore.getInstance();
 
         // Use data from GlobalVariables
         etName.setText(GlobalVariables.person.getName());
@@ -131,6 +159,9 @@ public class EditProfileActivity extends AppCompatActivity {
         etLocation.setText(GlobalVariables.person.getLocation());
         etTwitter.setText(GlobalVariables.person.getTwitter());
         etWeb.setText(GlobalVariables.person.getWebsite());
+
+        setRecyclerViewLayoutManagers();
+        fetchProjects("worker's_services", servicesRecyclerView, new ServiceGridAdapter( EditProfileActivity.this  , new ArrayList<>()));
 
         String imageUrl = GlobalVariables.person.getImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -149,10 +180,10 @@ public class EditProfileActivity extends AppCompatActivity {
         boolean isWorker = GlobalVariables.isWorker;
         if (isWorker) {
             serviceDetailsCard.setVisibility(View.VISIBLE);
-            addPictures.setVisibility(View.VISIBLE);
+
         } else {
             serviceDetailsCard.setVisibility(View.GONE);
-            addPictures.setVisibility(View.GONE);
+
         }
         // initialize selected language array
         selectedLanguage = new boolean[GlobalVariables.categoriesList.size()];
@@ -160,6 +191,8 @@ public class EditProfileActivity extends AppCompatActivity {
             categoryList.add(categories.getName());
         }
         categoryArray = categoryList.toArray(new String[0]);
+
+
         categoriesSpinner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -301,23 +334,23 @@ public class EditProfileActivity extends AppCompatActivity {
                     user2.put("email", email);
                     user2.put("fName", name);
                     user2.put("user", GlobalVariables.code);
-                 documentReference2.set(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
-                     @Override
-                     public void onSuccess(Void unused) {
-                         GlobalVariables.person.setPhone(phone);
-                         firebase.updateCategories(GlobalVariables.categoriesList);
-                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                         intent.putExtra("navigateToProfile", true);
-                         startActivity(intent);
-                         Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    documentReference2.set(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            GlobalVariables.person.setPhone(phone);
+                            firebase.updateCategories(GlobalVariables.categoriesList);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            intent.putExtra("navigateToProfile", true);
+                            startActivity(intent);
+                            Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
 
-                     }
-                 }).addOnFailureListener(new OnFailureListener() {
-                     @Override
-                     public void onFailure(@NonNull Exception e) {
-                         Toast.makeText(EditProfileActivity.this, "Profile updated Failed", Toast.LENGTH_SHORT).show();
-                     }
-                 });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(EditProfileActivity.this, "Profile updated Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -338,6 +371,9 @@ public class EditProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
+        btnAddService.setOnClickListener(v -> navigateToFragment(new ServiceFragment()));
+
+
 
         // Set OnClickListeners for edit icons to toggle EditText enabled state
         setToggleEditListener(editName, etName);
@@ -351,6 +387,13 @@ public class EditProfileActivity extends AppCompatActivity {
         setToggleEditListener(editTwitter, etTwitter);
         setToggleEditListener(editLocation, etLocation);
     }
+
+    private void setRecyclerViewLayoutManagers() {
+        servicesRecyclerView.setLayoutManager(new GridLayoutManager(EditProfileActivity.this , 3));
+    }
+
+
+
 
     private void setToggleEditListener(ImageView editIcon, EditText editText) {
         editIcon.setOnClickListener(v -> {
@@ -367,8 +410,49 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchProjects(String collection, RecyclerView recyclerView, RecyclerView.Adapter adapter) {
+        CollectionReference projectsRef = db.collection("projects")
+                .document(code)
+                .collection(collection);
 
-    @Override
+        projectsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    List<Project> projectList = new ArrayList<>();
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        projectList.add(document.toObject(Project.class));
+                    }
+                    updateRecyclerView(recyclerView, adapter, projectList);
+                } else {
+                    showToast("No projects found for this user");
+                }
+            } else {
+                showToast("Failed to fetch projects");
+            }
+        });
+    }
+
+    private void showToast(String message) {
+        // Uncomment the below line to show toast messages
+        // Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    private void navigateToFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void updateRecyclerView(RecyclerView recyclerView, RecyclerView.Adapter adapter, List<Project> projectList) {
+        if (adapter instanceof GridAdapter) {
+            ((GridAdapter) adapter).updateProjects(projectList);
+        } else if (adapter instanceof ServiceGridAdapter) {
+            ((ServiceGridAdapter) adapter).updateProjects(projectList);
+        }
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 

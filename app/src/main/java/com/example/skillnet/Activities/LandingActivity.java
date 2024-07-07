@@ -21,9 +21,9 @@ public class LandingActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-        boolean isGust = sharedPreferences.getBoolean("isGust", false);
+        boolean isGuest = sharedPreferences.getBoolean("isGuest", false);
 
-        if (currentUser != null || isGust) {
+        if (currentUser != null || isGuest) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();

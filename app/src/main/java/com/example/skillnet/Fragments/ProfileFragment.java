@@ -1,5 +1,6 @@
 package com.example.skillnet.Fragments;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -51,11 +52,13 @@ public class ProfileFragment extends Fragment {
     private View bioLayout;
     private View iconsLayout;
 
+    private Dialog loadingDialog;
+
     private View reviewLayout;
     private View servicesLayout;
     private View completedLayout;
     private ImageView profileImage, back;
-    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview ,  btnNewPost;
+    private Button btnEditProfile, btnSettings, btnPostProject, btnMessage, btnReview ;
     private ReviewProfileAdapter reviewProfileAdapter;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -64,7 +67,7 @@ public class ProfileFragment extends Fragment {
     private ImageView instagramImageView, facebookImageView, twitterImageView, linkedinImageView;
     private String code;
     private boolean otherPerson;
-    private boolean isGust = false;
+    private boolean isGuest = false;
 
     public ProfileFragment(boolean otherPerson) {
         this.otherPerson = otherPerson;
@@ -78,26 +81,23 @@ public class ProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         // Access SharedPreferences
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MySharedPrefs", getActivity().MODE_PRIVATE);
-        isGust = sharedPreferences.getBoolean("isGust", false);
+        isGuest = sharedPreferences.getBoolean("isGuest", false);
 
         initializeViews(view);
         if (otherPerson) {
             // api balana anik eka other person
             code = GlobalVariables.otherPersonData.getpCode();
             back.setVisibility(View.VISIBLE);
-            if(!isGust) {
+            if(!isGuest) {
                 btnMessage.setVisibility(View.VISIBLE);
             }
             else {
                 btnMessage.setVisibility(View.GONE);
             }
             btnPostProject.setVisibility(View.GONE);
-            btnReview.setVisibility(View.GONE);
-            btnNewPost.setVisibility(View.GONE);
             btnEditProfile.setVisibility(View.GONE);
             btnSettings.setVisibility(View.GONE);
-            profession.setVisibility(View.GONE);
-            profession.setVisibility(View.GONE);
+
             bioLayout.setVisibility(View.GONE);
             servicesLayout.setVisibility(View.GONE);
             completedLayout.setVisibility(View.VISIBLE);
@@ -105,7 +105,7 @@ public class ProfileFragment extends Fragment {
             reviewLayout.setVisibility(View.GONE);
 
             if(GlobalVariables.otherPersonData.isIsworker()){
-                if(!isGust) {
+                if(!isGuest) {
                     btnReview.setVisibility(View.VISIBLE);
                 }
                 else{
@@ -122,11 +122,11 @@ public class ProfileFragment extends Fragment {
 
         } else {
             code = GlobalVariables.code;
+
             back.setVisibility(View.GONE);
             btnEditProfile.setVisibility(View.VISIBLE);
             btnSettings.setVisibility(View.VISIBLE);
             btnMessage.setVisibility(View.GONE);
-            btnNewPost.setVisibility(View.GONE);
             btnReview.setVisibility(View.GONE);
 
             if (GlobalVariables.isWorker) {
@@ -137,8 +137,6 @@ public class ProfileFragment extends Fragment {
                 completedLayout.setVisibility(View.GONE);
                 iconsLayout.setVisibility(View.VISIBLE);
                 reviewLayout.setVisibility(View.VISIBLE);
-
-
             } else {
                 btnEditProfile.setVisibility(View.VISIBLE);
                 btnPostProject.setVisibility(View.VISIBLE);
@@ -163,7 +161,7 @@ public class ProfileFragment extends Fragment {
         servicesLayout = view.findViewById(R.id.services_layout);
         completedLayout= view.findViewById(R.id.completed_project_layout);
         reviewLayout = view.findViewById(R.id.review_layout) ;
-        btnNewPost = view.findViewById(R.id.btn_post) ;
+
         fName = view.findViewById(R.id.name);
         profession = view.findViewById(R.id.profession);
         location = view.findViewById(R.id.location);
@@ -200,7 +198,14 @@ public class ProfileFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Firebase firebase = new Firebase();
 
-        if (currentUser != null || isGust) {
+        loadingDialog = new Dialog(getActivity());
+        loadingDialog.setContentView(R.layout.dialog_loading);
+        loadingDialog.setCancelable(false);
+        ImageView loadingGif = loadingDialog.findViewById(R.id.loading_gif);
+        Glide.with(this).asGif().load(R.drawable.loading).into(loadingGif);
+        loadingDialog.show();
+
+        if (currentUser != null || isGuest) {
             userDocRef = db.collection("users").document(code);
 
             userDocRef.get().addOnCompleteListener(task -> {
@@ -250,6 +255,7 @@ public class ProfileFragment extends Fragment {
         phone.setText(person.getPhone() != null && !person.getPhone().isEmpty() ? person.getPhone() : " ");
         setProfileImage(person.getImageUrl());
         setSocialMediaListeners(person);
+        loadingDialog.dismiss();
     }
 
     private String getUserCategories(String pCode) {
@@ -299,7 +305,7 @@ public class ProfileFragment extends Fragment {
         btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
         btnMessage.setOnClickListener(v ->
                 navigateToFragment(new ChatFragment(GlobalVariables.otherPersonData.getpCode(), true)));
-        if(!isGust)
+        if(!isGuest)
             firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
             public void onCallback(List<ReviewModel> list) {

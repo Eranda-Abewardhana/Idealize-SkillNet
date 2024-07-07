@@ -1,9 +1,16 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_container">
+
+    <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -530,7 +537,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_margin="16dp"
-        android:visibility="gone"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp">
 
@@ -541,107 +547,47 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/completed_project_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+
+
+
+                <TextView
+                    android:id="@+id/completed_projects_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="Your Services"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/services_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:padding="16dp"
+                    android:scrollbars="vertical"
+                    tools:listitem="@layout/grid_item" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btn_add_services"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:text="Service details"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"
-                android:hint="Service name"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"
-                android:hint="Service price"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"
-                android:hint="About me"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"
-                android:hint="expertise"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/edit_text_gray"
-                android:hint="Categories"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
+                android:padding="10dp"
+                android:text="Add Your Services"
+                android:backgroundTint="@color/black"
+                android:textColor="@android:color/white"
+                android:layout_margin="16dp"
+                android:layout_gravity="center" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-    <!-- Pictures -->
-
-
-    <LinearLayout
-        android:id="@+id/add_pictures"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="Pictures:"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/edit_text_transparent"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageButton
-                android:id="@+id/btn_add_picture"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:layout_margin="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Add Picture"
-                android:src="@drawable/img_7" />
-        </LinearLayout>
-
-    </LinearLayout>
 
     <!-- Save Button -->
     <Button
@@ -655,4 +601,6 @@
         android:layout_gravity="center" />
 
 </LinearLayout>
-</ScrollView>
+    </ScrollView>
+    </FrameLayout>
+

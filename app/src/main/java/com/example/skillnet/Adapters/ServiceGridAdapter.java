@@ -62,8 +62,8 @@ public class ServiceGridAdapter extends RecyclerView.Adapter<ServiceGridAdapter.
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.service_image);
-            titleTextView = itemView.findViewById(R.id.project_title);
-            descriptionTextView = itemView.findViewById(R.id.project_description);
+            titleTextView = itemView.findViewById(R.id.service_title);
+            //descriptionTextView = itemView.findViewById(R.id.project_description);
         }
     }
 }
