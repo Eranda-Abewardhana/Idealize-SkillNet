@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -51,7 +52,9 @@ public class SignupActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
+        boolean isGust = sharedPreferences.getBoolean("isGust", false);
+        if (currentUser != null  || isGust) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
@@ -178,6 +181,7 @@ public class SignupActivity extends AppCompatActivity {
                                             user2.put("name", fullName);
                                             user2.put("pCode", maxPCode);
                                             user2.put("stars", 0);
+                                            user2.put("email", email);
                                             documentReference2.set(user2).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {

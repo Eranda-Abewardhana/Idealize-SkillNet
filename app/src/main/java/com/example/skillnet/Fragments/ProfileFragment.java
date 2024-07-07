@@ -1,6 +1,7 @@
 package com.example.skillnet.Fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -63,6 +64,7 @@ public class ProfileFragment extends Fragment {
     private ImageView instagramImageView, facebookImageView, twitterImageView, linkedinImageView;
     private String code;
     private boolean otherPerson;
+    private boolean isGust = false;
 
     public ProfileFragment(boolean otherPerson) {
         this.otherPerson = otherPerson;
@@ -74,14 +76,21 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        // Access SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MySharedPrefs", getActivity().MODE_PRIVATE);
+        isGust = sharedPreferences.getBoolean("isGust", false);
 
         initializeViews(view);
         if (otherPerson) {
             // api balana anik eka other person
             code = GlobalVariables.otherPersonData.getpCode();
             back.setVisibility(View.VISIBLE);
-            btnMessage.setVisibility(View.VISIBLE);
-
+            if(!isGust) {
+                btnMessage.setVisibility(View.VISIBLE);
+            }
+            else {
+                btnMessage.setVisibility(View.GONE);
+            }
             btnPostProject.setVisibility(View.GONE);
             btnReview.setVisibility(View.GONE);
             btnNewPost.setVisibility(View.GONE);
@@ -96,7 +105,12 @@ public class ProfileFragment extends Fragment {
             reviewLayout.setVisibility(View.GONE);
 
             if(GlobalVariables.otherPersonData.isIsworker()){
-                btnReview.setVisibility(View.VISIBLE);
+                if(!isGust) {
+                    btnReview.setVisibility(View.VISIBLE);
+                }
+                else{
+                    btnReview.setVisibility(View.GONE);
+                }
                 profession.setVisibility(View.VISIBLE);
                 bioLayout.setVisibility(View.VISIBLE);
                 servicesLayout.setVisibility(View.VISIBLE);
@@ -186,21 +200,31 @@ public class ProfileFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         Firebase firebase = new Firebase();
 
-        if (currentUser != null) {
-            String email = currentUser.getEmail();
+        if (currentUser != null || isGust) {
             userDocRef = db.collection("users").document(code);
-            userDocRef2 = db.collection("users_signup").document(email);
 
             userDocRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    DocumentSnapshot document1 = task.getResult();
+                    if (document1.exists()) {
+                        userDocRef2 = db.collection("users_signup").document(document1.getString("email"));
+                        userDocRef2.get().addOnCompleteListener(task2 -> {
+                            if (task2.isSuccessful() && task2.getResult() != null) {
+                                if (otherPerson) {
+                                    GlobalVariables.otherPersonData.setPhone(task2.getResult().getString("PhoneNumber"));
+                                    phone.setText(GlobalVariables.otherPersonData.getPhone());
+                                } else {
+                                    GlobalVariables.person.setPhone(task2.getResult().getString("PhoneNumber"));
+                                    phone.setText(GlobalVariables.person.getPhone());
+                                }
+                            }
+                        });
                         if (otherPerson) {
-                            GlobalVariables.otherPersonData = document.toObject(PersonData.class);
+                            GlobalVariables.otherPersonData = document1.toObject(PersonData.class);
                             if(GlobalVariables.otherPersonData != null)
                                 setUserData(GlobalVariables.otherPersonData);
                         } else {
-                            GlobalVariables.person = document.toObject(PersonData.class);
+                            GlobalVariables.person = document1.toObject(PersonData.class);
                             if(GlobalVariables.person != null)
                                 setUserData(GlobalVariables.person);
                         }
@@ -210,18 +234,6 @@ public class ProfileFragment extends Fragment {
                     }
                 } else {
                     showToast("Failed to fetch document");
-                }
-            });
-
-            userDocRef2.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    if (otherPerson) {
-                        GlobalVariables.otherPersonData.setPhone(task.getResult().getString("PhoneNumber"));
-                        phone.setText(GlobalVariables.otherPersonData.getPhone());
-                    } else {
-                        GlobalVariables.person.setPhone(task.getResult().getString("PhoneNumber"));
-                        phone.setText(GlobalVariables.person.getPhone());
-                    }
                 }
             });
         }
@@ -287,8 +299,8 @@ public class ProfileFragment extends Fragment {
         btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
         btnMessage.setOnClickListener(v ->
                 navigateToFragment(new ChatFragment(GlobalVariables.otherPersonData.getpCode(), true)));
-
-        firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
+        if(!isGust)
+            firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
             public void onCallback(List<ReviewModel> list) {
                 reviewProfileAdapter = new ReviewProfileAdapter(getContext(), list);

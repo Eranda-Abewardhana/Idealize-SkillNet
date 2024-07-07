@@ -25,6 +25,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+
+
             <ImageView
                 android:id="@+id/imageView9"
                 android:layout_width="30dp"
@@ -42,6 +44,16 @@
                 android:text="2"
                 android:textColor="@color/lite_gold" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView20"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/log_out"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/imageView"

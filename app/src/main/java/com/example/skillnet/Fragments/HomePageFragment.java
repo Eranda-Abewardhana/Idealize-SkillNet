@@ -1,8 +1,12 @@
 package com.example.skillnet.Fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.skillnet.Activities.LoginActivity;
 import com.example.skillnet.Activities.MainActivity;
 import com.example.skillnet.Adapters.CategoryAdapter;
 import com.example.skillnet.Adapters.CategoryDataAdapter;
@@ -69,6 +74,7 @@ public class HomePageFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private DocumentReference userDocRef, userDocRef2;
+    private ImageView back;
 
 
     @Nullable
@@ -76,6 +82,9 @@ public class HomePageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        boolean isGust = sharedPreferences.getBoolean("isGust", false);
 
         context = getActivity().getApplicationContext();
         feeds = view.findViewById(R.id.feeds);
@@ -84,6 +93,7 @@ public class HomePageFragment extends Fragment {
         fStore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        back = view.findViewById(R.id.imageView20);
 
         // Initialize the loading dialog
         loadingDialog = new Dialog(getActivity());
@@ -92,6 +102,18 @@ public class HomePageFragment extends Fragment {
         ImageView loadingGif = loadingDialog.findViewById(R.id.loading_gif);
         Glide.with(this).asGif().load(R.drawable.loading).into(loadingGif);
         loadingDialog.show();
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Handle logout row click
+                editor.putBoolean("isGust", false);
+                editor.apply(); // Save the changes
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
 
         // Initialize the RecyclerView
         recyclerView1 = view.findViewById(R.id.recycler_view);
@@ -131,11 +153,22 @@ public class HomePageFragment extends Fragment {
             }
         });
 
+        massageTab.setVisibility(View.VISIBLE);
         GlobalVariables.personDataList.clear();
         GlobalVariables.categoriesList.clear();
         GlobalVariables.postList.clear();
 
-        retryGetUserCode();
+        if(isGust) {
+            back.setVisibility(View.VISIBLE);
+            massageTab.setVisibility(View.GONE);
+            workerUpdated = true;
+            GlobalVariables.isWorker = false;
+            name.setText("Gust User");
+        }
+        else {
+            retryGetUserCode();
+            back.setVisibility(View.GONE);
+        }
 
         firebase.getAllUsers(new FirebaseCallback<PersonData>() {
             @Override

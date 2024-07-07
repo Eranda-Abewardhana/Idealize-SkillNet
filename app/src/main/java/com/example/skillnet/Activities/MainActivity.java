@@ -1,6 +1,7 @@
 package com.example.skillnet.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
+        boolean isGust = sharedPreferences.getBoolean("isGust", false);
 
         auth = FirebaseAuth.getInstance();
         firebase = new Firebase();
@@ -65,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         button = findViewById(R.id.logout);
 
-        if (user == null) {
+        if (user == null && !isGust) {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
             finish();
@@ -84,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tab_layout);
         viewPager2 = findViewById(R.id.viewpager);
+
+        if(isGust){
+            tabLayout.setVisibility(View.GONE);
+        }
+        else {
+            tabLayout.setVisibility(View.VISIBLE);
+        }
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
         viewPagerAdapter.addFragment(new HomePageFragment());

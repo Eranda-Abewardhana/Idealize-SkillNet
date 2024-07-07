@@ -72,6 +72,10 @@ public class LoginActivity extends AppCompatActivity {
                 GlobalVariables.addAccount = false;
                 startActivity(intent);
                 finish();
+            }else {
+                Intent intent = new Intent(getApplicationContext(), OptionActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
