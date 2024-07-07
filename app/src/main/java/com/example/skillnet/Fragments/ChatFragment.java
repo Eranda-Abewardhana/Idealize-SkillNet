@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -310,12 +311,18 @@ public class ChatFragment extends Fragment implements ChatListAdapter.OnItemClic
                 chatAdapter.notifyDataSetChanged();
                 chatRecycle.scrollToPosition(chatList.size() - 1);
                 if (personDataList.isEmpty() && !isOther) {
-                    // Timeout reached without data
-                    Toast.makeText(getContext(), "Operation timed out", Toast.LENGTH_SHORT).show();
+                    // Ensure the Toast is shown on the main thread
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "Operation timed out", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     // Optionally, you can cancel the Firebase request here if it's supported
                 }
             }
         }, 10000); // 10 seconds timeout
+
         return view;
     }
 
