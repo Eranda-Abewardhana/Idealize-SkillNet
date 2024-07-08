@@ -117,4 +117,7 @@ public class Post {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public String getPostID() { return postCode;
+    }
 }

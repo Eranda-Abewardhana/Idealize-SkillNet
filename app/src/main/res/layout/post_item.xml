@@ -183,9 +183,25 @@
                         android:textColor="@color/gray"
                         android:textSize="8dp" />
 
+                    <Button
+                        android:id="@+id/btn_request"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/button_background"
+                        android:text="Request"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="8dp" />
+
 
                 </LinearLayout>
+
+
+
             </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/seemoredetails"

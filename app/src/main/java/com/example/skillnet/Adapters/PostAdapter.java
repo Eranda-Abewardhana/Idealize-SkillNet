@@ -1,6 +1,7 @@
 package com.example.skillnet.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +22,10 @@ import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.PersonData;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -28,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,6 +44,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<PersonData> personDataList; // Assuming you get this list from somewhere
     private Context context;
     private FragmentActivity activity;
+    private FirebaseFirestore db; // Firestore instance
+
+    private boolean isRequested = false ;
 
     public PostAdapter(List<Post> postList, List<Categories> categoriesList, List<PersonData> personDataList, Context context, FragmentActivity activity) {
         this.postList = postList;
@@ -44,6 +54,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.personDataList = personDataList;
         this.context = context;
         this.activity = activity;
+        this.db = FirebaseFirestore.getInstance(); // Initialize Firestore
         sortPostsByDatetime();
     }
 
@@ -67,12 +78,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @NonNull
     @Override
     public PostAdapter.PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item, parent, false);
         return new PostViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final PostAdapter.PostViewHolder holder, int position) {
+
         Post post = postList.get(position);
         Categories category = new Categories();
         PersonData personData = new PersonData();
@@ -99,10 +113,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.contact.setText(post.getMobileNo());
         holder.description.setText(post.getDescription());
         Picasso.get().load(personData.getImageUrl()).into(holder.profileImage);
-        if(post.getImageUrl() != null && !post.getImageUrl().equals("")){
+        if (post.getImageUrl() != null && !post.getImageUrl().equals("")) {
             Picasso.get().load(post.getImageUrl()).into(holder.image);
-        }
-        else {
+        } else {
             Picasso.get().load(category.getUrl()).into(holder.image);
         }
         PersonData finalPersonData = personData;
@@ -116,6 +129,54 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 transaction.commit();
             }
         });
+
+        // Check if document exists and set the initial state of the button
+        db.collection("posts").document(post.getPostID())
+                .collection(post.getPostID()).document(GlobalVariables.code)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.getResult().exists()) {
+                            isRequested = true;
+                            holder.requestButton.setBackgroundResource(R.drawable.button_background_see_more);
+                            holder.requestButton.setText("Requested");
+                            holder.requestButton.setTextColor(Color.BLACK); // Set text color to black
+                        } else {
+                            isRequested = false;
+                            holder.requestButton.setBackgroundResource(R.drawable.button_background);
+                            holder.requestButton.setText("Request");
+                            holder.requestButton.setTextColor(ContextCompat.getColor(context, R.color.white));
+                        }
+                    }
+                });
+
+
+        // Set the request button action
+        holder.requestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isRequested) {
+                    holder.requestButton.setBackgroundResource(R.drawable.button_background_see_more);
+                    holder.requestButton.setText("Requested");
+                    holder.requestButton.setTextColor(Color.BLACK); // Set text color to black
+
+                    // Add the document to Firestore
+                    db.collection("posts").document(post.getPostID())
+                            .collection(post.getPostID()).document(GlobalVariables.code)
+                            .set(new HashMap<String, Object>());
+                } else {
+                    holder.requestButton.setBackgroundResource(R.drawable.button_background);
+                    holder.requestButton.setText("Request");
+                    holder.requestButton.setTextColor(ContextCompat.getColor(context, R.color.white)); // Replace with the original text color resource                    // Remove the document from Firestore
+                    db.collection("posts").document(post.getPostID())
+                            .collection(post.getPostID()).document(GlobalVariables.code)
+                            .delete();
+                }
+                // Toggle the flag
+                isRequested = !isRequested;
+            }
+        });
+
         // Set the see more button action
         holder.seeMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,8 +202,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView categoryName, location, title, price, category2, datetime, description, contact, name;
         ImageView profileImage, image;
-        Button seeMoreButton;
-        LinearLayout see_more, profile;
+        Button seeMoreButton, requestButton;
+        LinearLayout see_more, profile, btn_request;
+        boolean isRequested;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -160,7 +222,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             description = itemView.findViewById(R.id.description);
             contact = itemView.findViewById(R.id.contact);
             see_more = itemView.findViewById(R.id.seemoredetails);
+            requestButton = itemView.findViewById(R.id.btn_request);
             profile = itemView.findViewById(R.id.profile);
+
+
         }
     }
 
