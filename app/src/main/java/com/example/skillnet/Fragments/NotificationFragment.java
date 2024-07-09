@@ -1,6 +1,7 @@
 package com.example.skillnet.Fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +20,22 @@ import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.Models.ReviewModel;
 import com.example.skillnet.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationFragment extends Fragment {
 
-    private RecyclerView recyclerView;
-    private ReviewAdapter reviewAdapter;
+    private static RecyclerView recyclerView;
+    private static ReviewAdapter reviewAdapter;
+    private static FirebaseFirestore fStore;
 
     @Nullable
     @Override
@@ -36,39 +44,65 @@ public class NotificationFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        fStore = FirebaseFirestore.getInstance();
 
         // Fetch reviews from Firebase
+        fetchNotificationData();
+
+        return view;
+    }
+
+    public static void fetchNotificationData() {
         Firebase firebase = new Firebase();
         firebase.getAllUserReviews(new FirebaseCallback<ReviewModel>() {
             @Override
             public void onCallback(List<ReviewModel> list) {
-                Categories category = new Categories();
-                for(Post post : GlobalVariables.postList){
-                    if(post.isFindWorker() != GlobalVariables.isWorker) {
-                        ReviewModel reviewModel = new ReviewModel();
-                        reviewModel.setDateTime(post.getDateTime());
-                        reviewModel.setCategoryCode(post.getCategoryCode());
-                        reviewModel.setDescription(post.getDescription());
-                        reviewModel.setTitle(post.getTitle());
-                        reviewModel.setClientCode(post.getUserCode());
-                        reviewModel.setReview(false);
+                for (Post post : GlobalVariables.postList) {
+                    if (post.getUserCode().equals(GlobalVariables.code)) {
+                        CollectionReference subCollection = fStore.collection("posts").document(post.getPostCode()).collection(post.getPostCode());
 
-                        if (post.getImageUrl() != null && !post.getImageUrl().equals("")) {
-                            reviewModel.setImageUrl(post.getImageUrl());
-                        } else {
-                            for (Categories categories : GlobalVariables.categoriesList) {
-                                if (post.getCategoryCode().equals(categories.getCode())) {
-                                    category = categories;
-                                    break;
+                        subCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> subTask) {
+                                if (subTask.isSuccessful()) {
+                                    for (QueryDocumentSnapshot subDocument : subTask.getResult()) {
+                                        ReviewModel reviewModel = new ReviewModel();
+                                        reviewModel.setPostId(post.getPostCode());
+                                        reviewModel.setDateTime(post.getDateTime());
+                                        reviewModel.setCategoryCode(post.getCategoryCode());
+                                        reviewModel.setDescription(post.getDescription());
+                                        reviewModel.setTitle(post.getTitle());
+                                        reviewModel.setClientCode(subDocument.getId());
+                                        reviewModel.setAccept((Boolean) subDocument.get("approved"));
+                                        reviewModel.setFindWorker(post.isFindWorker());
+                                        if(reviewModel.isAccept()){
+                                            reviewModel.setFindWorker(true);
+                                        }
+                                        reviewModel.setReview(false);
+
+                                        if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
+                                            reviewModel.setImageUrl(post.getImageUrl());
+                                        } else {
+                                            for (Categories categories : GlobalVariables.categoriesList) {
+                                                if (post.getCategoryCode().equals(categories.getCode())) {
+                                                    reviewModel.setImageUrl(categories.getUrl());
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        list.add(reviewModel);
+                                    }
+                                    reviewAdapter = new ReviewAdapter(recyclerView.getContext(), list);
+                                    recyclerView.setAdapter(reviewAdapter);
+//                                    reviewAdapter.updateData(list);
+                                    reviewAdapter.notifyDataSetChanged();
+                                } else {
+                                    Log.d("Firestore", "Error getting sub-collection documents: ", subTask.getException());
                                 }
                             }
-                            reviewModel.setImageUrl(category.getUrl());
-                        }
-                        list.add(reviewModel);
+                        });
                     }
                 }
-                reviewAdapter = new ReviewAdapter(getContext(), list);
-                recyclerView.setAdapter(reviewAdapter);
             }
 
             @Override
@@ -81,7 +115,5 @@ public class NotificationFragment extends Fragment {
                 // Handle single item callback if needed
             }
         });
-
-        return view;
     }
 }

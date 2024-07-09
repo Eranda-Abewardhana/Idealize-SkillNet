@@ -9,6 +9,25 @@ public class ReviewModel {
     private String title;
     private String dateTime;
     private boolean review;
+    private String postId;
+    private boolean isAccept;
+    private boolean findWorker;
+
+    public boolean isAccept() {
+        return isAccept;
+    }
+
+    public void setAccept(boolean accept) {
+        isAccept = accept;
+    }
+
+    public boolean isFindWorker() {
+        return findWorker;
+    }
+
+    public void setFindWorker(boolean findWorker) {
+        this.findWorker = findWorker;
+    }
 
     public ReviewModel() {
     }
@@ -24,7 +43,13 @@ public class ReviewModel {
         this.dateTime = dateTime;
         this.review = review;
     }
+    public String getPostId() {
+        return postId;
+    }
 
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
     public void setCategoryCode(String categoryCode) {
         this.categoryCode = categoryCode;
     }
