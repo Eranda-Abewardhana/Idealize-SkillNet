@@ -182,19 +182,26 @@ public class ServiceFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 downloadUrl = uri.toString();
-                                Toast.makeText(getContext(), "Image updated", Toast.LENGTH_SHORT).show();
+                                if (getActivity() != null) {
+                                    Toast.makeText(getActivity(), "Image updated", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        }
+                       ;
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(getContext(), "Failed to compress image", Toast.LENGTH_SHORT).show();
+                if (getActivity() != null) {
+                    Toast.makeText(getActivity(), "Failed to compress image", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

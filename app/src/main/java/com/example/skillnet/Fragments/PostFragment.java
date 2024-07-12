@@ -2,7 +2,9 @@ package com.example.skillnet.Fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -73,13 +77,16 @@ public class PostFragment extends Fragment {
     private String selectedCategory = "";
     private FirebaseFirestore fStore;
     private String downloadUrl = "";
+    private static final int PERMISSION_REQUEST_CODE = 100;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_post, container, false);
-
+        if (!checkPermission()) {
+            requestPermission();
+        }
         // Initialize views
         backButton = view.findViewById(R.id.imageView2);
         titleTextView = view.findViewById(R.id.title);
@@ -113,7 +120,15 @@ public class PostFragment extends Fragment {
 
         return view;
     }
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int resultRead = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED && resultRead == PackageManager.PERMISSION_GRANTED;
+    }
 
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+    }
     private void setupPostButton() {
         firebase.getAllPosts(new FirebaseCallback<Post>() {
             @Override
@@ -291,6 +306,11 @@ public class PostFragment extends Fragment {
                             public void onSuccess(Uri uri) {
                                 downloadUrl = uri.toString();
                                 Toast.makeText(getContext(), "Image updated", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getContext(), "Failed to get download URL", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
