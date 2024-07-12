@@ -42,27 +42,22 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         this.reviewList = reviewList;
         this.fStore = FirebaseFirestore.getInstance();
         sortReviewsByDatetime();
-        notifyDataSetChanged();
     }
 
     public void updateData(List<ReviewModel> newReviewList) {
         this.reviewList = newReviewList;
         sortReviewsByDatetime();
-        notifyDataSetChanged();
     }
 
     private void sortReviewsByDatetime() {
-        Collections.sort(reviewList, new Comparator<ReviewModel>() {
-            @Override
-            public int compare(ReviewModel o1, ReviewModel o2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ssa", Locale.getDefault());
-                try {
-                    Date date1 = sdf.parse(o1.getDateTime());
-                    Date date2 = sdf.parse(o2.getDateTime());
-                    return date2.compareTo(date1); // Sort in descending order
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ssa", Locale.getDefault());
+        Collections.sort(reviewList, (o1, o2) -> {
+            try {
+                Date date1 = sdf.parse(o1.getDateTime());
+                Date date2 = sdf.parse(o2.getDateTime());
+                return date2.compareTo(date1); // Sort in descending order
+            } catch (ParseException e) {
+                e.printStackTrace();
                 return 0;
             }
         });
@@ -78,15 +73,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         ReviewModel review = reviewList.get(position);
-
         holder.name.setText(getPersonNameByCode(review.getClientCode()));
         holder.title.setText(review.getTitle() + " " + getCategoryNameByCode(review.getCategoryCode()));
         holder.date.setText(review.getDateTime());
 
         if (review.getImageUrl() != null) {
             Picasso.get().load(review.getImageUrl()).into(holder.imageView);
-        } else {
-            // holder.imageView.setImageResource(R.drawable.default_image); // Set a default image if URL is null
         }
 
         if (review.isReview()) {
@@ -102,21 +94,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             holder.accept.setVisibility(View.VISIBLE);
             holder.reject.setVisibility(View.VISIBLE);
             holder.accept.setBackgroundResource(review.isAccept() ? R.drawable.accept : R.drawable.check);
-            if (!review.isFindWorker()) {
-                holder.itemView.setAlpha(1.0f);
-                holder.accept.setClickable(true);
-                holder.accept.setEnabled(true);
-            } else {
-                if (review.isAccept()) {
-                    holder.itemView.setAlpha(1.0f);
-                    holder.accept.setClickable(true);
-                    holder.accept.setEnabled(true);
-                } else {
-                    holder.itemView.setAlpha(0.5f);
-                    holder.accept.setClickable(false);
-                    holder.accept.setEnabled(false);
-                }
-            }
+            holder.accept.setEnabled(!review.isFindWorker() || review.isAccept());
+            holder.accept.setAlpha(holder.accept.isEnabled() ? 1.0f : 0.5f);
         }
 
         holder.accept.setOnClickListener(view -> toggleApproval(holder, review, position));
@@ -142,36 +121,29 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     private void toggleApproval(ReviewViewHolder holder, ReviewModel review, int position) {
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault());
-        Date now2 = new Date();
-        String formattedTime2 = sdf2.format(now2);
-        DocumentReference documentReference = fStore.collection("posts").document(review.getPostId()).collection(review.getPostId()).document(review.getClientCode());
+        String formattedTime = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault()).format(new Date());
+        DocumentReference documentReference = fStore.collection("posts").document(review.getPostId())
+                .collection(review.getPostId()).document(review.getClientCode());
+
         Map<String, Object> user = new HashMap<>();
         user.put("approved", !review.isAccept());
-        user.put("datetime", formattedTime2);
+        user.put("datetime", formattedTime);
 
-        documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                DocumentReference documentReference = fStore.collection("posts").document(review.getPostId());
-                Map<String, Object> user = new HashMap<>();
-                user.put("findWorker", !review.isAccept());
-                documentReference.update(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        NotificationFragment.fetchNotificationData();
-                        notifyDataSetChanged();
-                        holder.accept.setBackgroundResource(review.isAccept() ? R.drawable.accept : R.drawable.check);
-                        notifyItemChanged(position);
-                    }
-                });
-            }
-        });
+        documentReference.set(user)
+                .addOnSuccessListener(aVoid -> updateFindWorkerStatus(review, position, holder))
+                .addOnFailureListener(e -> Log.d("Firestore", "Error updating approval: ", e));
+    }
+
+    private void updateFindWorkerStatus(ReviewModel review, int position, ReviewViewHolder holder) {
+        DocumentReference documentReference = fStore.collection("posts").document(review.getPostId());
+        Map<String, Object> user = new HashMap<>();
+        user.put("findWorker", !review.isAccept());
+
+        documentReference.update(user).addOnSuccessListener(aVoid -> {
+            NotificationFragment.fetchNotificationData();
+            holder.accept.setBackgroundResource(review.isAccept() ? R.drawable.accept : R.drawable.check);
+            notifyItemChanged(position);
+        }).addOnFailureListener(e -> Log.d("Firestore", "Error updating findWorker: ", e));
     }
 
     private void deleteReview(ReviewModel review, int position) {
@@ -181,7 +153,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                 .document(GlobalVariables.code);
 
         documentReference.delete().addOnSuccessListener(aVoid -> {
-            reviewList.remove(review);
+            reviewList.remove(position);
             notifyItemRemoved(position);
         }).addOnFailureListener(e -> Log.d("Firestore", "Error deleting document: ", e));
     }
