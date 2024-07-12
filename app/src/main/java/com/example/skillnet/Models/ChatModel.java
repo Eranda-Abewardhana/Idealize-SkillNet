@@ -2,14 +2,14 @@ package com.example.skillnet.Models;
 
 public class ChatModel {
     String code;
-    String massage;
+    String message;
     PersonData user;
     String dateTime;
     PersonData otherUser;
 
-    public ChatModel(String code, String massage, PersonData user, PersonData otherUser, String dateTime) {
+    public ChatModel(String code, String message, PersonData user, PersonData otherUser, String dateTime) {
         this.code = code;
-        this.massage = massage;
+        this.message = message;
         this.user = user;
         this.otherUser = otherUser;
         this.dateTime = dateTime;
@@ -47,11 +47,11 @@ public class ChatModel {
         this.code = code;
     }
 
-    public String getMassage() {
-        return massage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMassage(String massage) {
-        this.massage = massage;
+    public void setMessage(String massage) {
+        this.message = message;
     }
 }
