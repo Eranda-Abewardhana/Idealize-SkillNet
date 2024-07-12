@@ -73,11 +73,18 @@ public class NotificationFragment extends Fragment {
                                         reviewModel.setDescription(post.getDescription());
                                         reviewModel.setTitle(post.getTitle());
                                         reviewModel.setClientCode(subDocument.getId());
-                                        reviewModel.setAccept((Boolean) subDocument.get("approved"));
-                                        reviewModel.setFindWorker(post.isFindWorker());
-                                        if(reviewModel.isAccept()){
-                                            reviewModel.setFindWorker(true);
+
+                                        Boolean approved = subDocument.getBoolean("approved");
+                                        if (approved != null) {
+                                            reviewModel.setAccept(approved);
+                                            if (approved) {
+                                                reviewModel.setFindWorker(true);
+                                            }
+                                        } else {
+                                            reviewModel.setAccept(false);
+                                            reviewModel.setFindWorker(false);
                                         }
+
                                         reviewModel.setReview(false);
 
                                         if (post.getImageUrl() != null && !post.getImageUrl().isEmpty()) {
@@ -94,7 +101,6 @@ public class NotificationFragment extends Fragment {
                                     }
                                     reviewAdapter = new ReviewAdapter(recyclerView.getContext(), list);
                                     recyclerView.setAdapter(reviewAdapter);
-//                                    reviewAdapter.updateData(list);
                                     reviewAdapter.notifyDataSetChanged();
                                 } else {
                                     Log.d("Firestore", "Error getting sub-collection documents: ", subTask.getException());

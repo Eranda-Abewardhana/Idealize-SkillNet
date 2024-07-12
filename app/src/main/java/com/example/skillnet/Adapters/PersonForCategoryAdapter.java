@@ -45,7 +45,14 @@ public class PersonForCategoryAdapter extends RecyclerView.Adapter<PersonForCate
         PersonData person = personDataList.get(position);
         holder.personName.setText(person.getName());
         holder.category.setText(categories);
-        Picasso.get().load(person.getImageUrl()).into(holder.personImage);
+        if(!person.getImageUrl().isEmpty()){
+            Picasso.get().load(person.getImageUrl()).into(holder.personImage);
+        }else{
+            holder.personImage.setBackgroundResource(R.drawable.person);
+        }
+
+
+
         holder.personLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
