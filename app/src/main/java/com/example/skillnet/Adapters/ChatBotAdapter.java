@@ -38,10 +38,9 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             holder.botCard.setVisibility(View.GONE);
             holder.userCard.setVisibility(View.VISIBLE);
             holder.botTime.setVisibility(View.GONE);
-            holder.userTime.setVisibility(View.VISIBLE);
             holder.userMessage.setText(chat.getMassage());
             holder.userTime.setText(chat.getDateTime());
-            if(chat.getUser().getImageUrl() != null)
+            if(chat.getUser().getImageUrl() != null && !chat.getUser().getImageUrl().isEmpty())
             {
                 Picasso.get().load(chat.getUser().getImageUrl()).into(holder.profileImage);
             }
@@ -51,7 +50,6 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
         } else if (chat.getCode().equals("otherUser")) {
             holder.botCard.setVisibility(View.VISIBLE);
             holder.userCard.setVisibility(View.GONE);
-            holder.botTime.setVisibility(View.VISIBLE);
             holder.botMassage.setText(chat.getMassage());
             holder.botTime.setText(chat.getDateTime());
             holder.userTime.setVisibility(View.GONE);
@@ -64,7 +62,6 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
         } else{
             holder.botCard.setVisibility(View.VISIBLE);
             holder.userCard.setVisibility(View.GONE);
-            holder.botTime.setVisibility(View.VISIBLE);
             holder.botMassage.setText(chat.getMassage());
             holder.botImage.setBackgroundResource(R.drawable.logo);
             holder.botTime.setText(chat.getDateTime());

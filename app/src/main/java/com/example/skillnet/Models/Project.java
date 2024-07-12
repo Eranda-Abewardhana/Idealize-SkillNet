@@ -4,17 +4,27 @@ public class Project {
     private String title;
     private String imageUrl;
     private String description;
+    private double price;
     private String datetime;
 
     public Project() {
         // Default constructor required for calls to DataSnapshot.getValue(Project.class)
     }
 
-    public Project(String title, String imageUrl, String description, String datetime) {
+    public Project(String title, String imageUrl, String description, String datetime, double price) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.description = description;
         this.datetime = datetime;
+        this.price = price;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getTitle() {

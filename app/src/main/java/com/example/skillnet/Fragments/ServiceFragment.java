@@ -62,6 +62,7 @@ public class ServiceFragment extends Fragment {
     private Button postButton;
     private String selectedCategory = "";
     private FirebaseFirestore fStore;
+    private Uri imageUri;
     private String downloadUrl = "";
 
     @Override
@@ -96,42 +97,8 @@ public class ServiceFragment extends Fragment {
         postButton.setOnClickListener(v -> {
             // Validate inputs
             if (validateInputs()) {
-                // Get values from inputs
-                String topic = topicEditText.getText().toString();
-                String description = descriptionEditText.getText().toString();
-                double price = Double.parseDouble(priceEditText.getText().toString());
-                String categoryCode = "";
-
-                for(Categories categories : GlobalVariables.categoriesList){
-                    if(categories.getName().equals(selectedCategory)){
-                        categoryCode = categories.getCode();
-                        break;
-                    }
-                }
-                // Create a SimpleDateFormat instance with the desired format
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.getDefault());
-
-                // Get the current date and time
-                Date now = new Date();
-
-                // Format the current time as a string
-                String formattedTime = sdf.format(now);
-                // Create a map to store data
-                Map<String, Object> post = new HashMap<>();
-                post.put("dateTime", formattedTime);
-                post.put("price", price);
-                post.put("imageUrl", downloadUrl);
-                post.put("title", topic);
-
-                // Save data to Firestore
-                DocumentReference documentReference = fStore.collection("projects").document(GlobalVariables.code).collection("worker's_services").document();
-                documentReference.set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(getContext(), "Service Created Successfully", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack();
-                    }
-                });
+                // Upload the image and save data
+                uploadImageAndSaveData();
             }
         });
 
@@ -155,14 +122,8 @@ public class ServiceFragment extends Fragment {
         return true;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
-
-            // Compress the image
+    private void uploadImageAndSaveData() {
+        if (imageUri != null) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -182,19 +143,84 @@ public class ServiceFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 downloadUrl = uri.toString();
-                                Toast.makeText(getContext(), "Image updated", Toast.LENGTH_SHORT).show();
+                                savePostData();
                             }
                         });
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(getContext(), "Failed to compress image", Toast.LENGTH_SHORT).show();
+                if (getActivity() != null) {
+                    Toast.makeText(getActivity(), "Failed to compress image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            // No image selected, save post data directly
+            savePostData();
+        }
+    }
+
+    private void savePostData() {
+        // Get values from inputs
+        String topic = topicEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+        double price = Double.parseDouble(priceEditText.getText().toString());
+        String categoryCode = "";
+
+        for (Categories categories : GlobalVariables.categoriesList) {
+            if (categories.getName().equals(selectedCategory)) {
+                categoryCode = categories.getCode();
+                break;
+            }
+        }
+
+        // Create a SimpleDateFormat instance with the desired format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        // Get the current date and time
+        Date now = new Date();
+
+        // Format the current time as a string
+        String formattedTime = sdf.format(now);
+
+        // Create a map to store data
+        Map<String, Object> post = new HashMap<>();
+        post.put("dateTime", formattedTime);
+        post.put("price", price);
+        post.put("imageUrl", downloadUrl);
+        post.put("title", topic);
+
+        // Save data to Firestore
+        DocumentReference documentReference = fStore.collection("projects").document(GlobalVariables.code).collection("worker's_services").document();
+        documentReference.set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(getContext(), "Service Created Successfully", Toast.LENGTH_SHORT).show();
+                getParentFragmentManager().popBackStack();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), "Failed to create service", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            if (getActivity() != null) {
+                Toast.makeText(getActivity(), "Image selected", Toast.LENGTH_SHORT).show();
             }
         }
     }

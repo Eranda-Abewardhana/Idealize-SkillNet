@@ -85,7 +85,7 @@ public class ChatBotFragment extends Fragment {
             allCategories = allCategories +", "+ category.getName();
 
         String historyC = "Skillnet is a modern marketplace where freelancers connect with clients who need their skills. Freelancers create detailed profiles showing their skills, work experience, portfolios, and reviews from past clients. This helps them get noticed by clients who are looking for their specific talents.\n\n" +
-                "Freelancers can browse job listings in categories like " + allCategories + ". They can apply for jobs that match their expertise and interests.\n\n" +
+                "Freelancers can browse job listings in categories like "+ allCategories +". They can apply for jobs that match their expertise and interests.\n\n" +
                 "Clients can easily post jobs and find the right freelancers by looking through detailed freelancer profiles and service categories. Each freelancer profile includes important information like their past projects, skills, services offered, rates, and reviews from previous clients. This helps clients make informed decisions about who to hire based on proven skills and performance.\n\n" +
                 "Skillnet offers advanced filters for job searches, secure messaging within the app, and an easy-to-use interface for managing projects for both freelancers and clients. One of its standout features is a client chatbot that provides instant help with writing job posts and finding the best freelancers. This makes the platform user-friendly with quick support and guidance.";
 

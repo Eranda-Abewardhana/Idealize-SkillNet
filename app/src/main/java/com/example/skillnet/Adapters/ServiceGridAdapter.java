@@ -41,8 +41,7 @@ public class ServiceGridAdapter extends RecyclerView.Adapter<ServiceGridAdapter.
         Project project = projectList.get(position);
         if(project.getTitle() != null)
             holder.titleTextView.setText(project.getTitle());
-        if(project.getDescription() != null)
-            holder.descriptionTextView.setText(project.getDescription());
+            holder.descriptionTextView.setText(String.valueOf(project.getPrice()));
         Glide.with(context)
                 .load(project.getImageUrl())
                 .placeholder(R.drawable.placeholder) // Placeholder image
@@ -63,7 +62,7 @@ public class ServiceGridAdapter extends RecyclerView.Adapter<ServiceGridAdapter.
             super(itemView);
             imageView = itemView.findViewById(R.id.service_image);
             titleTextView = itemView.findViewById(R.id.service_title);
-            //descriptionTextView = itemView.findViewById(R.id.project_description);
+            descriptionTextView = itemView.findViewById(R.id.price);
         }
     }
 }
