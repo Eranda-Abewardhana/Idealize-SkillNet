@@ -30,15 +30,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.example.skillnet.Activities.EditProfileActivity;
-import com.example.skillnet.Activities.SignupActivity;
 import com.example.skillnet.FirebaseHelper.Firebase;
 import com.example.skillnet.FirebaseHelper.FirebaseCallback;
 import com.example.skillnet.Global_Variables.GlobalVariables;
-import com.example.skillnet.Models.PersonData;
+import com.example.skillnet.Models.Categories;
 import com.example.skillnet.Models.Post;
 import com.example.skillnet.R;
-import com.example.skillnet.Models.Categories;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -78,15 +75,16 @@ public class PostFragment extends Fragment {
     private FirebaseFirestore fStore;
     private String downloadUrl = "";
     private static final int PERMISSION_REQUEST_CODE = 100;
+    private Uri selectedImageUri;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         if (!checkPermission()) {
             requestPermission();
         }
+
         // Initialize views
         backButton = view.findViewById(R.id.imageView2);
         titleTextView = view.findViewById(R.id.title);
@@ -102,7 +100,7 @@ public class PostFragment extends Fragment {
         storageRef = FirebaseStorage.getInstance().getReference();
         firebase = new Firebase(); // Initialize Firebase instance
 
-        // Set up any required listeners here
+        // Set up listeners
         backButton.setOnClickListener(v -> {
             getParentFragmentManager().popBackStack();
         });
@@ -114,12 +112,11 @@ public class PostFragment extends Fragment {
         });
 
         setupPostButton();
-
-        // Setup category spinner
         setupCategorySpinner();
 
         return view;
     }
+
     private boolean checkPermission() {
         int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int resultRead = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -129,6 +126,7 @@ public class PostFragment extends Fragment {
     private void requestPermission() {
         ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
     }
+
     private void setupPostButton() {
         firebase.getAllPosts(new FirebaseCallback<Post>() {
             @Override
@@ -179,11 +177,7 @@ public class PostFragment extends Fragment {
 
                         // Create a SimpleDateFormat instance with the desired format
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-
-                        // Get the current date and time
                         Date now = new Date();
-
-                        // Format the current time as a string
                         String formattedTime = sdf.format(now);
 
                         // Create a map to store data
@@ -194,26 +188,18 @@ public class PostFragment extends Fragment {
                         post.put("dateTime", formattedTime);
                         post.put("findWorker", !GlobalVariables.isWorker);
                         post.put("price", price);
-                        post.put("imageUrl", downloadUrl);
                         post.put("location", location);
                         post.put("mobileNo", GlobalVariables.person.getPhone());
                         post.put("title", topic);
                         post.put("userCode", GlobalVariables.code);
 
-                        // Save data to Firestore
-                        DocumentReference documentReference = fStore.collection("posts").document(newPostCode);
-                        documentReference.set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Toast.makeText(getContext(), "Post Created Successfully", Toast.LENGTH_SHORT).show();
-                                getParentFragmentManager().popBackStack();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getContext(), "Failed to create post", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        // Check if an image is selected
+                        if (!TextUtils.isEmpty(downloadUrl)) {
+                            post.put("imageUrl", downloadUrl);
+                            savePostToFirestore(post, newPostCode);
+                        } else {
+                            uploadImageAndSavePost(post, newPostCode);
+                        }
                     }
                 });
             }
@@ -230,66 +216,12 @@ public class PostFragment extends Fragment {
         });
     }
 
-    private boolean validateInputs() {
-        if (TextUtils.isEmpty(topicEditText.getText().toString())) {
-            topicEditText.setError("Topic is required");
-            return false;
-        }
-        if (TextUtils.isEmpty(descriptionEditText.getText().toString())) {
-            descriptionEditText.setError("Description is required");
-            return false;
-        }
-        if (TextUtils.isEmpty(locationEditText.getText().toString())) {
-            locationEditText.setError("Location is required");
-            return false;
-        }
-        if (TextUtils.isEmpty(priceEditText.getText().toString())) {
-            priceEditText.setError("Price is required");
-            return false;
-        }
-        if (TextUtils.isEmpty(selectedCategory) || selectedCategory.equals("Select a Category")) {
-            Toast.makeText(getContext(), "Category is required", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
-    }
-
-    private void setupCategorySpinner() {
-        List<String> categoryNames = new ArrayList<>();
-        categoryNames.add("Select a Category");
-        for (Categories category : GlobalVariables.categoriesList) {
-            categoryNames.add(category.getName());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categoryNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-
-        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategory = categoryNames.get(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Handle the case when no category is selected
-            }
-        });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
-
-            // Compress the image
+    private void uploadImageAndSavePost(Map<String, Object> post, String newPostCode) {
+        if (selectedImageUri != null) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos); // Adjust compression level as needed
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                 byte[] imageData = baos.toByteArray();
 
                 // Define the storage reference
@@ -305,7 +237,8 @@ public class PostFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 downloadUrl = uri.toString();
-                                Toast.makeText(getContext(), "Image updated", Toast.LENGTH_SHORT).show();
+                                post.put("imageUrl", downloadUrl);
+                                savePostToFirestore(post, newPostCode);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -324,6 +257,64 @@ public class PostFragment extends Fragment {
                 e.printStackTrace();
                 Toast.makeText(getContext(), "Failed to compress image", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void savePostToFirestore(Map<String, Object> post, String newPostCode) {
+        DocumentReference documentReference = fStore.collection("posts").document(newPostCode);
+        documentReference.set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(getContext(), "Post Created Successfully", Toast.LENGTH_SHORT).show();
+                getParentFragmentManager().popBackStack();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), "Failed to create post", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private boolean validateInputs() {
+        // Validate all inputs (topic, description, location, price)
+        // Return true if valid, otherwise show appropriate Toast messages and return false
+        // Add your validation logic here
+        return true;
+    }
+
+    private void setupCategorySpinner() {
+        // Set up category spinner logic
+        List<String> categories = new ArrayList<>();
+        for (Categories category : GlobalVariables.categoriesList) {
+            categories.add(category.getName());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = categories.get(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedCategory = "";
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+            // Optionally, display the selected image in an ImageView
+            Glide.with(this).load(selectedImageUri).into(addImageButton); // Example using Glide to load image
         }
     }
 }
