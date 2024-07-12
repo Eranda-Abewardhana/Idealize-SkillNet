@@ -39,9 +39,9 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             holder.userCard.setVisibility(View.VISIBLE);
             holder.botTime.setVisibility(View.GONE);
             holder.userTime.setVisibility(View.VISIBLE);
-            holder.userMessage.setText(chat.getMassage());
+            holder.userMessage.setText(chat.getMessage());
             holder.userTime.setText(chat.getDateTime());
-            if(chat.getUser().getImageUrl() != null)
+            if(chat.getUser().getImageUrl() != null && !chat.getUser().getImageUrl().isEmpty()  )
             {
                 Picasso.get().load(chat.getUser().getImageUrl()).into(holder.profileImage);
             }
@@ -52,7 +52,7 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             holder.botCard.setVisibility(View.VISIBLE);
             holder.userCard.setVisibility(View.GONE);
             holder.botTime.setVisibility(View.VISIBLE);
-            holder.botMassage.setText(chat.getMassage());
+            holder.botMessage.setText(chat.getMessage());
             holder.botTime.setText(chat.getDateTime());
             holder.userTime.setVisibility(View.GONE);
             if(chat.getOtherUser().getImageUrl() != null) {
@@ -65,7 +65,7 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             holder.botCard.setVisibility(View.VISIBLE);
             holder.userCard.setVisibility(View.GONE);
             holder.botTime.setVisibility(View.VISIBLE);
-            holder.botMassage.setText(chat.getMassage());
+            holder.botMessage.setText(chat.getMessage());
             holder.botImage.setBackgroundResource(R.drawable.logo);
             holder.botTime.setText(chat.getDateTime());
             holder.userTime.setVisibility(View.GONE);
@@ -78,7 +78,7 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
     }
 
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
-        TextView userMessage, botMassage, userTime, botTime;
+        TextView userMessage, botMessage, userTime, botTime;
         de.hdodenhof.circleimageview.CircleImageView profileImage, botImage;
         LinearLayout userCard, botCard;
 
@@ -87,7 +87,7 @@ public class ChatBotAdapter extends RecyclerView.Adapter<ChatBotAdapter.ChatView
             userCard     = itemView.findViewById(R.id.user_card);
             botCard      = itemView.findViewById(R.id.robot_card);
             userMessage  = itemView.findViewById(R.id.usertext);
-            botMassage   = itemView.findViewById(R.id.robotext);
+            botMessage   = itemView.findViewById(R.id.robotext);
             profileImage = itemView.findViewById(R.id.user);
             botImage     = itemView.findViewById(R.id.robo);
             userTime     = itemView.findViewById(R.id.usertime);
